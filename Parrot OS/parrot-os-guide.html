@@ -1,0 +1,3442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PARROT OS // TOOL INSTALLATION MASTERY GUIDE</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap');
+
+:root {
+  --green: #00ff41;
+  --green-dim: #00cc33;
+  --green-dark: #003311;
+  --green-glow: 0 0 10px #00ff41, 0 0 20px #00ff41, 0 0 40px #00ff4188;
+  --cyan: #00ffff;
+  --cyan-glow: 0 0 10px #00ffff, 0 0 20px #00ffff88;
+  --red: #ff0040;
+  --yellow: #ffff00;
+  --orange: #ff8800;
+  --bg: #000a00;
+  --bg2: #000d02;
+  --card-bg: rgba(0,20,5,0.85);
+  --border: #00ff4133;
+  --border-bright: #00ff4188;
+  --font-mono: 'Share Tech Mono', monospace;
+  --font-display: 'Orbitron', monospace;
+  --font-body: 'Rajdhani', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--green);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.7;
+  overflow-x: hidden;
+  cursor: default;
+}
+
+/* ═══════════════════════════════════════════
+   MATRIX CANVAS BACKGROUND
+═══════════════════════════════════════════ */
+#matrix-canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+  opacity: 0.18;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════
+   SCROLLBAR
+═══════════════════════════════════════════ */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #000; }
+::-webkit-scrollbar-thumb { background: var(--green-dim); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--green); }
+
+/* ═══════════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════════ */
+.page-wrapper {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* ═══════════════════════════════════════════
+   INTRO SPLASH SCREEN
+═══════════════════════════════════════════ */
+#intro-screen {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: #000;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.8s ease, visibility 0.8s ease;
+}
+#intro-screen.hidden { opacity: 0; visibility: hidden; }
+
+.intro-logo {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 6vw, 5rem);
+  font-weight: 900;
+  color: var(--green);
+  text-shadow: var(--green-glow);
+  letter-spacing: 8px;
+  text-align: center;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.intro-sub {
+  font-family: var(--font-mono);
+  font-size: clamp(0.8rem, 2vw, 1.1rem);
+  color: var(--cyan);
+  letter-spacing: 4px;
+  margin-top: 16px;
+  animation: flicker 3s infinite;
+}
+
+.boot-sequence {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--green-dim);
+  margin-top: 40px;
+  text-align: left;
+  width: min(500px, 90vw);
+}
+
+.boot-line {
+  opacity: 0;
+  animation: boot-appear 0.1s forwards;
+  padding: 2px 0;
+}
+
+.boot-ok { color: var(--green); }
+.boot-load { color: var(--cyan); }
+.boot-warn { color: var(--yellow); }
+
+.enter-btn {
+  margin-top: 40px;
+  padding: 14px 48px;
+  border: 2px solid var(--green);
+  background: transparent;
+  color: var(--green);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  letter-spacing: 4px;
+  cursor: pointer;
+  text-transform: uppercase;
+  opacity: 0;
+  transition: all 0.3s ease;
+  box-shadow: var(--green-glow);
+  animation: fade-in-btn 0.5s 3.5s forwards;
+}
+.enter-btn:hover {
+  background: var(--green);
+  color: #000;
+  box-shadow: 0 0 30px #00ff41, 0 0 60px #00ff41;
+}
+
+/* ═══════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════ */
+#nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(0,5,0,0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border-bright);
+  padding: 12px 0;
+  box-shadow: 0 2px 20px rgba(0,255,65,0.15);
+}
+
+.nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.nav-brand {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--green);
+  text-shadow: var(--green-glow);
+  margin-right: 16px;
+  white-space: nowrap;
+}
+
+.nav-link {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--green-dim);
+  text-decoration: none;
+  padding: 4px 10px;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.nav-link:hover {
+  color: var(--green);
+  border-color: var(--green);
+  text-shadow: 0 0 8px var(--green);
+  background: rgba(0,255,65,0.08);
+}
+.nav-link.active {
+  color: #000;
+  background: var(--green);
+  border-color: var(--green);
+}
+
+/* ═══════════════════════════════════════════
+   SECTION STYLES
+═══════════════════════════════════════════ */
+.section {
+  padding: 80px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-header {
+  margin-bottom: 48px;
+}
+
+.section-tag {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--cyan);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 900;
+  color: var(--green);
+  text-shadow: var(--green-glow);
+  line-height: 1.1;
+  letter-spacing: 2px;
+}
+
+.section-desc {
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  color: #88bb88;
+  max-width: 700px;
+  margin-top: 12px;
+  line-height: 1.8;
+}
+
+/* ═══════════════════════════════════════════
+   HERO SECTION
+═══════════════════════════════════════════ */
+#hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 100px 0 60px;
+  position: relative;
+}
+
+.hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--cyan);
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  animation: slide-in-left 0.8s ease forwards;
+}
+
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 8vw, 7rem);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -2px;
+  color: var(--green);
+  text-shadow: var(--green-glow);
+  animation: slide-in-left 0.8s 0.2s ease both;
+}
+
+.hero-title .accent { color: var(--cyan); text-shadow: var(--cyan-glow); }
+
+.hero-body {
+  font-family: var(--font-body);
+  font-size: 1.2rem;
+  color: #88bb88;
+  max-width: 650px;
+  margin-top: 24px;
+  line-height: 1.8;
+  animation: slide-in-left 0.8s 0.4s ease both;
+}
+
+.hero-stats {
+  display: flex;
+  gap: 40px;
+  margin-top: 48px;
+  flex-wrap: wrap;
+  animation: slide-in-left 0.8s 0.6s ease both;
+}
+
+.stat-item {
+  text-align: left;
+}
+.stat-num {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--green);
+  text-shadow: var(--green-glow);
+  line-height: 1;
+}
+.stat-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--green-dim);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.hero-scroll {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--green-dim);
+  letter-spacing: 3px;
+  animation: bounce 2s infinite;
+  text-align: center;
+}
+
+/* ═══════════════════════════════════════════
+   CARDS
+═══════════════════════════════════════════ */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 28px;
+  position: relative;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px;
+  height: 100%;
+  background: var(--green);
+  box-shadow: 0 0 10px var(--green);
+  transition: width 0.3s;
+}
+
+.card:hover {
+  border-color: var(--border-bright);
+  box-shadow: 0 0 20px rgba(0,255,65,0.1), inset 0 0 20px rgba(0,255,65,0.03);
+}
+.card:hover::before { width: 5px; }
+
+.card-title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--green);
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+}
+
+.card-body {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: #99cc99;
+  line-height: 1.7;
+}
+
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+
+/* ═══════════════════════════════════════════
+   TERMINAL / COMMAND BOXES
+═══════════════════════════════════════════ */
+.terminal {
+  background: #000d02;
+  border: 1px solid var(--border-bright);
+  border-radius: 6px;
+  margin: 24px 0;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(0,255,65,0.08);
+  font-family: var(--font-mono);
+}
+
+.terminal-header {
+  background: #001a05;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.terminal-dots {
+  display: flex;
+  gap: 6px;
+}
+.dot { width: 12px; height: 12px; border-radius: 50%; }
+.dot-r { background: #ff5f56; }
+.dot-y { background: #ffbd2e; }
+.dot-g { background: #27c93f; }
+
+.terminal-title {
+  flex: 1;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--green-dim);
+  letter-spacing: 2px;
+}
+
+.copy-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--green-dim);
+  padding: 3px 10px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+  letter-spacing: 1px;
+}
+.copy-btn:hover {
+  border-color: var(--green);
+  color: var(--green);
+  background: rgba(0,255,65,0.08);
+}
+.copy-btn.copied {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+.terminal-body {
+  padding: 20px;
+  font-size: 0.88rem;
+  line-height: 1.9;
+}
+
+.cmd-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.prompt { color: var(--cyan); user-select: none; flex-shrink: 0; }
+.cmd { color: var(--green); }
+.cmd .kw { color: #ff8800; } /* keywords like sudo */
+.cmd .flag { color: var(--cyan); } /* flags like -y */
+.cmd .arg { color: #ffff88; } /* arguments */
+.cmd .comment { color: #445544; font-style: italic; }
+.cmd .path { color: #ff88ff; }
+.cmd .url { color: #88ffff; text-decoration: underline; }
+
+.output-line { color: #445544; padding-left: 0; font-size: 0.82rem; }
+.output-ok { color: #00aa22; }
+.output-warn { color: var(--yellow); }
+.output-err { color: var(--red); }
+
+/* ═══════════════════════════════════════════
+   EXPLAINED COMMAND BLOCK
+═══════════════════════════════════════════ */
+.cmd-explain {
+  background: rgba(0,20,5,0.6);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin: 16px 0;
+  overflow: hidden;
+}
+
+.cmd-explain-header {
+  background: #001505;
+  padding: 12px 18px;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--green);
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background 0.2s;
+}
+.cmd-explain-header:hover { background: #002008; }
+
+.cmd-explain-header .the-cmd {
+  font-size: 1rem;
+  color: var(--green);
+  text-shadow: 0 0 6px var(--green);
+}
+
+.expand-icon {
+  color: var(--green-dim);
+  transition: transform 0.3s ease;
+  font-size: 0.8rem;
+}
+.expanded .expand-icon { transform: rotate(180deg); }
+
+.cmd-explain-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+.cmd-explain-body.open { max-height: 1000px; }
+
+.explain-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0;
+  border-top: 1px solid var(--border);
+}
+
+.explain-part {
+  padding: 14px 18px;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.explain-part:last-child { border-right: none; }
+
+.explain-token {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  margin-bottom: 6px;
+}
+.token-sudo { color: #ff8800; font-weight: bold; }
+.token-cmd { color: var(--green); }
+.token-flag { color: var(--cyan); }
+.token-arg { color: #ffff88; }
+
+.explain-desc {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: #88aa88;
+  line-height: 1.5;
+}
+
+.explain-deep {
+  padding: 14px 18px;
+  background: rgba(0,255,65,0.03);
+  border-top: 1px solid var(--border);
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  color: #88aa88;
+  line-height: 1.7;
+}
+
+.explain-deep strong { color: var(--green); }
+.explain-deep .file-path { color: #ff88ff; font-family: var(--font-mono); font-size: 0.85rem; }
+
+/* ═══════════════════════════════════════════
+   CONCEPT BOX
+═══════════════════════════════════════════ */
+.concept-box {
+  background: rgba(0,50,20,0.25);
+  border: 1px solid rgba(0,255,65,0.2);
+  border-left: 4px solid var(--green);
+  border-radius: 0 4px 4px 0;
+  padding: 20px 24px;
+  margin: 24px 0;
+}
+
+.concept-box.cyan {
+  border-left-color: var(--cyan);
+  background: rgba(0,50,50,0.2);
+}
+
+.concept-box.yellow {
+  border-left-color: var(--yellow);
+  background: rgba(40,40,0,0.3);
+}
+
+.concept-box.red {
+  border-left-color: var(--red);
+  background: rgba(40,0,10,0.3);
+}
+
+.concept-box.orange {
+  border-left-color: var(--orange);
+  background: rgba(40,20,0,0.3);
+}
+
+.concept-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  color: var(--green);
+}
+.concept-box.cyan .concept-label { color: var(--cyan); }
+.concept-box.yellow .concept-label { color: var(--yellow); }
+.concept-box.red .concept-label { color: var(--red); }
+.concept-box.orange .concept-label { color: var(--orange); }
+
+.concept-title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: inherit;
+}
+
+.concept-text {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: #99bb99;
+  line-height: 1.7;
+}
+.concept-text strong { color: var(--green); }
+.concept-text code {
+  font-family: var(--font-mono);
+  background: rgba(0,255,65,0.1);
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-size: 0.88em;
+  color: var(--green);
+}
+
+/* ═══════════════════════════════════════════
+   ERROR BOXES
+═══════════════════════════════════════════ */
+.error-block {
+  background: rgba(40,0,10,0.5);
+  border: 1px solid rgba(255,0,64,0.4);
+  border-radius: 4px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.error-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+
+.error-icon {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--red);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 0 10px var(--red);
+}
+
+.error-title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--red);
+  letter-spacing: 1px;
+}
+
+.error-body { display: none; }
+.error-body.visible { display: block; }
+
+.error-msg {
+  background: #0a0002;
+  border: 1px solid #330011;
+  padding: 12px 16px;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: #ff6688;
+  border-radius: 3px;
+  margin-bottom: 14px;
+  word-break: break-all;
+}
+
+.solution-step {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin: 10px 0;
+}
+.step-num {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid var(--green);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--green);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.step-text {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: #99bb99;
+  line-height: 1.6;
+}
+.step-text code {
+  font-family: var(--font-mono);
+  background: rgba(0,255,65,0.1);
+  padding: 1px 6px;
+  border-radius: 2px;
+  font-size: 0.85em;
+  color: var(--green);
+}
+
+/* ═══════════════════════════════════════════
+   METHOD TABS
+═══════════════════════════════════════════ */
+.method-tabs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0;
+}
+
+.method-tab {
+  padding: 10px 20px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-bottom: none;
+  color: var(--green-dim);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 1px;
+  border-radius: 4px 4px 0 0;
+  margin-bottom: -1px;
+}
+.method-tab:hover { color: var(--green); border-color: var(--border-bright); }
+.method-tab.active {
+  color: #000;
+  background: var(--green);
+  border-color: var(--green);
+}
+
+.method-panel { display: none; }
+.method-panel.active { display: block; animation: fade-in 0.3s ease; }
+
+/* ═══════════════════════════════════════════
+   INTERACTIVE TERMINAL SIMULATOR
+═══════════════════════════════════════════ */
+#terminal-sim {
+  background: #000500;
+  border: 1px solid var(--green);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 0 30px rgba(0,255,65,0.2);
+  margin: 32px 0;
+}
+
+#terminal-sim .terminal-header {
+  background: #001a00;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--green);
+}
+
+#terminal-sim .terminal-title {
+  color: var(--green);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  text-shadow: 0 0 6px var(--green);
+}
+
+#sim-output {
+  height: 320px;
+  overflow-y: auto;
+  padding: 16px 20px;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.8;
+  color: var(--green);
+}
+
+#sim-output .sim-line { animation: fade-in 0.1s ease; }
+#sim-output .sim-prompt { color: var(--cyan); }
+#sim-output .sim-output-text { color: #556655; }
+#sim-output .sim-ok { color: var(--green); }
+#sim-output .sim-err { color: var(--red); }
+#sim-output .sim-warn { color: var(--yellow); }
+
+#sim-input-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  background: #000800;
+}
+
+#sim-prompt-display {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--cyan);
+  white-space: nowrap;
+}
+
+#sim-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--green);
+  caret-color: var(--green);
+}
+
+.sim-hint {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: #334433;
+  padding: 8px 20px;
+  border-top: 1px solid var(--border);
+  background: #000500;
+}
+
+/* ═══════════════════════════════════════════
+   PATH DIAGRAM
+═══════════════════════════════════════════ */
+.diagram-box {
+  background: rgba(0,15,5,0.8);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 28px;
+  margin: 24px 0;
+  overflow-x: auto;
+}
+
+.dir-tree {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 2;
+  color: var(--green-dim);
+}
+.dir-tree .dir-name { color: var(--cyan); font-weight: bold; }
+.dir-tree .dir-desc { color: #445544; }
+.dir-tree .dir-important { color: var(--green); }
+.dir-tree .dir-tools { color: var(--yellow); }
+
+/* ═══════════════════════════════════════════
+   PROGRESS / CHECKLIST
+═══════════════════════════════════════════ */
+.checklist {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.check-item {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  background: rgba(0,20,5,0.5);
+  border: 1px solid var(--border);
+  padding: 14px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.check-item:hover { border-color: var(--border-bright); }
+.check-item.checked {
+  border-color: var(--green);
+  background: rgba(0,255,65,0.05);
+}
+
+.check-box {
+  width: 20px; height: 20px;
+  border: 2px solid var(--border-bright);
+  border-radius: 3px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  font-size: 0.7rem;
+  color: transparent;
+}
+.check-item.checked .check-box {
+  background: var(--green);
+  border-color: var(--green);
+  color: #000;
+  font-weight: bold;
+}
+
+.check-text {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: #88aa88;
+  line-height: 1.5;
+}
+.check-item.checked .check-text {
+  color: var(--green);
+  text-decoration: line-through;
+  text-decoration-color: rgba(0,255,65,0.4);
+}
+
+/* ═══════════════════════════════════════════
+   DECISION TREE
+═══════════════════════════════════════════ */
+.decision-tree {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  background: rgba(0,10,3,0.8);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 28px;
+  margin: 24px 0;
+  line-height: 2;
+}
+
+.dt-question {
+  color: var(--yellow);
+  font-weight: bold;
+}
+.dt-yes { color: var(--green); }
+.dt-no { color: var(--red); }
+.dt-action { color: var(--cyan); }
+.dt-branch { color: var(--green-dim); }
+
+/* ═══════════════════════════════════════════
+   TIPS BLOCK
+═══════════════════════════════════════════ */
+.tip-block {
+  background: rgba(0,30,15,0.4);
+  border: 1px solid rgba(0,255,65,0.15);
+  border-left: 3px solid var(--green);
+  padding: 16px 20px;
+  margin: 16px 0;
+  border-radius: 0 4px 4px 0;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.tip-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 2px; }
+
+.tip-content {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: #88bb88;
+  line-height: 1.6;
+}
+.tip-content strong { color: var(--green); }
+.tip-content code {
+  font-family: var(--font-mono);
+  background: rgba(0,255,65,0.1);
+  padding: 1px 6px;
+  border-radius: 2px;
+  font-size: 0.85em;
+  color: var(--green);
+}
+
+/* ═══════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════ */
+footer {
+  padding: 60px 0 40px;
+  text-align: center;
+  border-top: 1px solid var(--border);
+}
+
+.footer-logo {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--green);
+  text-shadow: var(--green-glow);
+  letter-spacing: 4px;
+  margin-bottom: 16px;
+}
+
+.footer-text {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: #334433;
+  letter-spacing: 2px;
+}
+
+/* ═══════════════════════════════════════════
+   ANIMATIONS
+═══════════════════════════════════════════ */
+@keyframes pulse-glow {
+  0%, 100% { text-shadow: 0 0 10px #00ff41, 0 0 20px #00ff41; }
+  50% { text-shadow: 0 0 20px #00ff41, 0 0 40px #00ff41, 0 0 80px #00ff41; }
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.4; }
+  94% { opacity: 1; }
+  96% { opacity: 0.6; }
+  97% { opacity: 1; }
+}
+
+@keyframes boot-appear {
+  to { opacity: 1; }
+}
+
+@keyframes fade-in-btn {
+  to { opacity: 1; }
+}
+
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(8px); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes typing {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes scan-line {
+  0% { top: -5%; }
+  100% { top: 105%; }
+}
+
+.scanning::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(to right, transparent, rgba(0,255,65,0.3), transparent);
+  animation: scan-line 3s linear infinite;
+}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .hero-stats { gap: 24px; }
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .method-tabs { gap: 4px; }
+  .method-tab { font-size: 0.72rem; padding: 8px 12px; }
+  .explain-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ═══════════════════════════════════════════
+   INLINE BADGE
+═══════════════════════════════════════════ */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 2px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  font-weight: bold;
+}
+.badge-green { background: rgba(0,255,65,0.15); color: var(--green); border: 1px solid rgba(0,255,65,0.3); }
+.badge-cyan { background: rgba(0,255,255,0.1); color: var(--cyan); border: 1px solid rgba(0,255,255,0.3); }
+.badge-red { background: rgba(255,0,64,0.1); color: var(--red); border: 1px solid rgba(255,0,64,0.3); }
+.badge-yellow { background: rgba(255,255,0,0.08); color: var(--yellow); border: 1px solid rgba(255,255,0,0.3); }
+.badge-orange { background: rgba(255,136,0,0.1); color: var(--orange); border: 1px solid rgba(255,136,0,0.3); }
+
+h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 3vw, 2.2rem);
+  color: var(--green);
+  text-shadow: 0 0 10px rgba(0,255,65,0.4);
+  letter-spacing: 2px;
+  margin: 32px 0 16px;
+}
+
+h3 {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+  color: var(--cyan);
+  letter-spacing: 2px;
+  margin: 24px 0 12px;
+}
+
+h4 {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  color: var(--green-dim);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin: 20px 0 10px;
+}
+
+p {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: #88aa88;
+  line-height: 1.8;
+  margin-bottom: 14px;
+}
+
+strong { color: var(--green); }
+em { color: var(--cyan); font-style: normal; }
+
+.divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--green-dim), transparent);
+  margin: 32px 0;
+  opacity: 0.5;
+}
+
+.full-width { width: 100%; }
+
+/* Glitch effect for titles */
+.glitch {
+  position: relative;
+}
+.glitch::before, .glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+}
+.glitch::before {
+  color: var(--cyan);
+  animation: glitch-1 3s infinite;
+  clip: rect(0, 900px, 0, 0);
+}
+.glitch::after {
+  color: var(--red);
+  animation: glitch-2 3s infinite;
+  clip: rect(0, 900px, 0, 0);
+}
+@keyframes glitch-1 {
+  0%, 100% { clip: rect(0,9999px,0,0); transform: none; }
+  5% { clip: rect(42px,9999px,44px,0); transform: skew(0.5deg); }
+  10% { clip: rect(12px,9999px,59px,0); transform: skew(-0.3deg); }
+  15% { clip: rect(0,9999px,0,0); transform: none; }
+  60% { clip: rect(72px,9999px,78px,0); transform: skew(0.2deg); }
+  65% { clip: rect(0,9999px,0,0); transform: none; }
+}
+@keyframes glitch-2 {
+  0%, 100% { clip: rect(0,9999px,0,0); transform: none; }
+  8% { clip: rect(82px,9999px,84px,0); transform: skew(-0.5deg); }
+  13% { clip: rect(28px,9999px,31px,0); transform: skew(0.3deg); }
+  18% { clip: rect(0,9999px,0,0); transform: none; }
+  65% { clip: rect(55px,9999px,58px,0); transform: skew(-0.2deg); }
+  70% { clip: rect(0,9999px,0,0); transform: none; }
+}
+
+/* Number accent */
+.num-accent {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  font-weight: 900;
+  color: rgba(0,255,65,0.08);
+  position: absolute;
+  top: 8px; right: 16px;
+  line-height: 1;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Section number badge */
+.section-num {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  color: rgba(0,255,65,0.4);
+  letter-spacing: 3px;
+  border: 1px solid rgba(0,255,65,0.2);
+  padding: 3px 10px;
+  border-radius: 2px;
+  display: inline-block;
+  margin-bottom: 12px;
+}
+</style>
+</head>
+<body>
+
+<!-- MATRIX BACKGROUND -->
+<canvas id="matrix-canvas"></canvas>
+
+<!-- INTRO SCREEN -->
+<div id="intro-screen">
+  <div class="intro-logo glitch" data-text="PARROT OS">PARROT OS</div>
+  <div class="intro-sub">TOOL INSTALLATION MASTERY GUIDE v2.0</div>
+  <div class="boot-sequence" id="boot-seq"></div>
+  <button class="enter-btn" id="enter-btn" onclick="enterSite()">[ INITIALIZE ]</button>
+</div>
+
+<!-- NAVIGATION -->
+<nav id="nav">
+  <div class="nav-inner">
+    <div class="nav-brand">⬡ PARROT/GUIDE</div>
+    <a href="#hero" class="nav-link">HOME</a>
+    <a href="#linux-basics" class="nav-link">LINUX BASICS</a>
+    <a href="#apt" class="nav-link">APT</a>
+    <a href="#github" class="nav-link">GITHUB</a>
+    <a href="#python" class="nav-link">PYTHON</a>
+    <a href="#go" class="nav-link">GO</a>
+    <a href="#snap" class="nav-link">SNAP/FLAT</a>
+    <a href="#source" class="nav-link">SOURCE</a>
+    <a href="#docker" class="nav-link">DOCKER</a>
+    <a href="#errors" class="nav-link">ERRORS</a>
+    <a href="#management" class="nav-link">MANAGE</a>
+    <a href="#terminal-lab" class="nav-link active">TERMINAL</a>
+    <a href="#checklist" class="nav-link">CHECKLIST</a>
+  </div>
+</nav>
+
+<!-- ════════════════════════════════════════════
+     MAIN CONTENT
+════════════════════════════════════════════ -->
+<div class="page-wrapper">
+
+<!-- ═══ HERO ═══ -->
+<section id="hero" class="section" style="border-bottom:none; padding-top:60px;">
+  <div class="hero-eyebrow">// COMPLETE BEGINNER TO MASTER</div>
+  <h1 class="hero-title">INSTALL ANY<br><span class="accent">TOOL</span> ON<br>PARROT OS</h1>
+  <p class="hero-body">A complete, deeply-explained guide covering every installation method available in Parrot OS. No prior Linux experience required. By the end of this guide, you will be able to install any security tool from any source.</p>
+  <div class="hero-stats">
+    <div class="stat-item"><div class="stat-num">8</div><div class="stat-label">INSTALL METHODS</div></div>
+    <div class="stat-item"><div class="stat-num">40+</div><div class="stat-label">REAL COMMANDS</div></div>
+    <div class="stat-item"><div class="stat-num">20+</div><div class="stat-label">ERROR FIXES</div></div>
+    <div class="stat-item"><div class="stat-num">100%</div><div class="stat-label">BEGINNER FRIENDLY</div></div>
+  </div>
+  <div class="hero-scroll">▼ SCROLL TO BEGIN ▼</div>
+</section>
+
+<!-- ═══ TABLE OF CONTENTS ═══ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-tag">// NAVIGATION MAP</span>
+    <h2 class="section-title">TABLE OF CONTENTS</h2>
+  </div>
+  <div class="grid-2">
+    <a href="#linux-basics" style="text-decoration:none">
+    <div class="card" style="cursor:pointer">
+      <span class="num-accent">01</span>
+      <div class="card-title">01 // LINUX BASICS</div>
+      <div class="card-body">What is Linux, directories, sudo, PATH, repositories, packages, dependencies, binaries. Everything you need before starting.</div>
+    </div></a>
+    <a href="#apt" style="text-decoration:none">
+    <div class="card" style="cursor:pointer">
+      <span class="num-accent">02</span>
+      <div class="card-title">02 // APT PACKAGE MANAGER</div>
+      <div class="card-body">The primary and recommended way to install tools on Parrot OS. Covers apt, apt-get, dpkg, sources.list.</div>
+    </div></a>
+    <a href="#github" style="text-decoration:none">
+    <div class="card" style="cursor:pointer">
+      <span class="num-accent">03</span>
+      <div class="card-title">03 // GITHUB INSTALLATION</div>
+      <div class="card-body">Clone and install tools from GitHub repositories. Covers git, requirements, setup.py, make install.</div>
+    </div></a>
+    <a href="#python" style="text-decoration:none">
+    <div class="card" style="cursor:pointer">
+      <span class="num-accent">04</span>
+      <div class="card-title">04 // PYTHON TOOLS (PIP/PIPX)</div>
+      <div class="card-body">Install Python-based security tools. Covers pip, pip3, pipx, virtual environments, requirements.txt.</div>
+    </div></a>
+    <a href="#go" style="text-decoration:none">
+    <div class="card" style="cursor:pointer">
+      <span class="num-accent">05</span>
+      <div class="card-title">05 // GO TOOLS</div>
+      <div class="card-body">Install tools written in Go. Covers go install, GOPATH, GOBIN, environment setup.</div>
+    </div></a>
+    <a href="#snap" style="text-decoration:none">
+    <div class="card" style="cursor:pointer">
+      <span class="num-accent">06</span>
+      <div class="card-title">06 // SNAP & FLATPAK</div>
+      <div class="card-body">Sandboxed application formats. Modern alternative to traditional packages.</div>
+    </div></a>
+    <a href="#source" style="text-decoration:none">
+    <div class="card" style="cursor:pointer">
+      <span class="num-accent">07</span>
+      <div class="card-title">07 // COMPILE FROM SOURCE</div>
+      <div class="card-body">Build tools from raw source code. Covers ./configure, make, make install, build dependencies.</div>
+    </div></a>
+    <a href="#docker" style="text-decoration:none">
+    <div class="card" style="cursor:pointer">
+      <span class="num-accent">08</span>
+      <div class="card-title">08 // DOCKER</div>
+      <div class="card-body">Run tools in isolated containers. docker pull, run, build, container management.</div>
+    </div></a>
+    <a href="#errors" style="text-decoration:none">
+    <div class="card" style="cursor:pointer">
+      <span class="num-accent">09</span>
+      <div class="card-title">09 // ERROR TROUBLESHOOTING</div>
+      <div class="card-body">Every common error with step-by-step solutions. APT errors, permission denied, PATH issues, broken packages.</div>
+    </div></a>
+    <a href="#checklist" style="text-decoration:none">
+    <div class="card" style="cursor:pointer">
+      <span class="num-accent">10</span>
+      <div class="card-title">10 // MASTERY CHECKLIST</div>
+      <div class="card-body">Interactive checklist. Track your progress. Confirm you've mastered every installation method.</div>
+    </div></a>
+  </div>
+</section>
+
+<!-- ═══ LINUX BASICS ═══ -->
+<section id="linux-basics" class="section">
+  <div class="section-header">
+    <span class="section-num">SECTION 01</span>
+    <span class="section-tag">// FOUNDATION KNOWLEDGE</span>
+    <h2 class="section-title">LINUX BASICS</h2>
+    <p class="section-desc">Before you install a single tool, you need to understand how Linux works internally. These concepts appear in every single installation method.</p>
+  </div>
+
+  <div class="grid-2">
+    <div class="concept-box">
+      <div class="concept-label">CONCEPT // WHAT IS LINUX</div>
+      <div class="concept-title">Linux Is An Operating System Kernel</div>
+      <div class="concept-text">
+        Linux is an open-source operating system kernel. <strong>Parrot OS</strong> is a Linux distribution (distro) — a full operating system built on top of the Linux kernel. Think of the kernel as the engine, and Parrot OS as the full car.
+        <br><br>
+        Parrot OS is built specifically for <strong>cybersecurity professionals</strong>. It comes with hundreds of pre-installed security tools, and you can add more anytime.
+      </div>
+    </div>
+
+    <div class="concept-box cyan">
+      <div class="concept-label">CONCEPT // THE TERMINAL</div>
+      <div class="concept-title">The Terminal Is Your Superpower</div>
+      <div class="concept-text">
+        The <strong>terminal</strong> (also called command line, shell, or bash) is a text interface to your operating system. Instead of clicking buttons, you type commands.
+        <br><br>
+        To open it in Parrot OS: <code>Right-click Desktop → Open Terminal</code> or press <code>Ctrl+Alt+T</code>.
+        <br><br>
+        The terminal runs a program called <strong>bash</strong> (Bourne Again SHell) by default.
+      </div>
+    </div>
+
+    <div class="concept-box yellow">
+      <div class="concept-label">CONCEPT // SUDO</div>
+      <div class="concept-title">What Is sudo?</div>
+      <div class="concept-text">
+        <strong>sudo</strong> stands for <em>Superuser DO</em>. It temporarily grants you administrator (root) privileges for one command.
+        <br><br>
+        Think of it like: your normal user account is a worker, <strong>root</strong> is the boss. <code>sudo</code> lets you temporarily become the boss to install software, modify system files, etc.
+        <br><br>
+        Without sudo, you cannot install software or modify critical files. You'll be asked for your password.
+      </div>
+    </div>
+
+    <div class="concept-box orange">
+      <div class="concept-label">CONCEPT // DIRECTORIES</div>
+      <div class="concept-title">Linux Directory Structure</div>
+      <div class="concept-text">
+        Everything in Linux is organized into directories (folders). The root directory is <code>/</code>. All other directories branch from it.
+        <br><br>
+        <code>/home/username</code> → Your personal files<br>
+        <code>/usr/bin</code> → Where most programs live<br>
+        <code>/etc</code> → Configuration files<br>
+        <code>/opt</code> → Optional/third-party software<br>
+        <code>/tmp</code> → Temporary files
+      </div>
+    </div>
+
+    <div class="concept-box">
+      <div class="concept-label">CONCEPT // THE PATH VARIABLE</div>
+      <div class="concept-title">What Is $PATH?</div>
+      <div class="concept-text">
+        <strong>$PATH</strong> is an environment variable that tells your system <em>where to look for programs</em> when you type a command.
+        <br><br>
+        When you type <code>nmap</code>, Linux doesn't search the entire hard drive. It only looks in the directories listed in your $PATH variable, in order.
+        <br><br>
+        Common PATH directories: <code>/usr/bin</code>, <code>/usr/local/bin</code>, <code>/usr/sbin</code>, <code>~/.local/bin</code>, <code>~/go/bin</code>
+        <br><br>
+        If a tool isn't found, it's often a PATH issue.
+      </div>
+    </div>
+
+    <div class="concept-box cyan">
+      <div class="concept-label">CONCEPT // PACKAGE MANAGER</div>
+      <div class="concept-title">What Is A Package Manager?</div>
+      <div class="concept-text">
+        A <strong>package manager</strong> is like an app store for Linux. It handles downloading, installing, updating, and removing software.
+        <br><br>
+        Parrot OS uses <strong>APT</strong> (Advanced Package Tool). APT downloads packages from <strong>repositories</strong> — servers that store software collections.
+        <br><br>
+        Other package managers: <code>pip</code> for Python, <code>go install</code> for Go, <code>snap</code>, <code>flatpak</code>.
+      </div>
+    </div>
+
+    <div class="concept-box yellow">
+      <div class="concept-label">CONCEPT // REPOSITORIES</div>
+      <div class="concept-title">What Is A Repository?</div>
+      <div class="concept-text">
+        A <strong>repository</strong> (repo) is a server that stores software packages. When you run <code>apt install</code>, APT connects to these servers to download the software.
+        <br><br>
+        Repository sources are listed in: <code>/etc/apt/sources.list</code> and <code>/etc/apt/sources.list.d/</code>
+        <br><br>
+        Parrot OS has its own repositories pre-configured with hundreds of security tools ready to install.
+      </div>
+    </div>
+
+    <div class="concept-box orange">
+      <div class="concept-label">CONCEPT // DEPENDENCIES</div>
+      <div class="concept-title">What Are Dependencies?</div>
+      <div class="concept-text">
+        A <strong>dependency</strong> is a library or program that another program needs to function. Like how a car needs an engine to run.
+        <br><br>
+        When you install a tool, APT automatically installs all its dependencies. This is called dependency resolution.
+        <br><br>
+        If you install manually (GitHub, pip, source), you often need to install dependencies yourself.
+      </div>
+    </div>
+  </div>
+
+  <h3>Linux Directory Structure — Full Visual Map</h3>
+  <div class="diagram-box">
+    <div class="dir-tree">
+<pre><span class="dir-name">/</span>  <span class="dir-desc">(root — the top of the entire filesystem)</span>
+├── <span class="dir-name">bin/</span>          <span class="dir-desc">→ Essential system binaries (ls, cp, mv, bash)</span>
+├── <span class="dir-name">sbin/</span>         <span class="dir-desc">→ System admin binaries (ifconfig, reboot)</span>
+├── <span class="dir-name">usr/</span>          <span class="dir-desc">→ User programs and data</span>
+│   ├── <span class="dir-tools">bin/</span>      <span class="dir-important">→ MOST INSTALLED TOOLS GO HERE (nmap, nikto, etc.)</span>
+│   ├── <span class="dir-tools">local/bin/</span><span class="dir-important">→ Manually installed tools go here</span>
+│   ├── <span class="dir-name">share/</span>    <span class="dir-desc">→ Shared data files</span>
+│   └── <span class="dir-name">lib/</span>      <span class="dir-desc">→ Libraries used by programs</span>
+├── <span class="dir-name">etc/</span>          <span class="dir-desc">→ Configuration files</span>
+│   ├── <span class="dir-name">apt/</span>      <span class="dir-desc">→ APT configuration</span>
+│   │   ├── <span class="dir-tools">sources.list</span> <span class="dir-important">→ APT repository list</span>
+│   │   └── <span class="dir-name">sources.list.d/</span> <span class="dir-desc">→ Additional repos</span>
+│   └── <span class="dir-name">environment</span> <span class="dir-desc">→ System-wide environment variables</span>
+├── <span class="dir-name">home/</span>         <span class="dir-desc">→ User home directories</span>
+│   └── <span class="dir-tools">username/</span>  <span class="dir-important">→ YOUR files are here (~)</span>
+│       ├── <span class="dir-name">.bashrc</span>  <span class="dir-desc">→ Your shell config (PATH edits go here)</span>
+│       ├── <span class="dir-tools">.local/bin/</span> <span class="dir-important">→ User-local installed tools</span>
+│       └── <span class="dir-name">go/bin/</span>  <span class="dir-desc">→ Go-installed tools</span>
+├── <span class="dir-name">opt/</span>          <span class="dir-desc">→ Optional/third-party software</span>
+├── <span class="dir-name">tmp/</span>          <span class="dir-desc">→ Temporary files (cleared on reboot)</span>
+├── <span class="dir-name">var/</span>          <span class="dir-desc">→ Variable data (logs, databases)</span>
+│   └── <span class="dir-name">lib/apt/lists/</span> <span class="dir-desc">→ APT package list cache</span>
+└── <span class="dir-name">proc/</span>         <span class="dir-desc">→ Virtual filesystem: running processes</span></pre>
+    </div>
+  </div>
+
+  <div class="concept-box">
+    <div class="concept-label">CONCEPT // BINARY</div>
+    <div class="concept-title">What Is A Binary?</div>
+    <div class="concept-text">
+      A <strong>binary</strong> is an executable file — a compiled program that your CPU can run directly. When you install a tool, the installed file in <code>/usr/bin/</code> is the binary.
+      <br><br>
+      Source code (<code>.c</code>, <code>.cpp</code>, <code>.go</code> files) must be <strong>compiled</strong> into a binary before the CPU can execute it. Some languages (Python) are interpreted instead — they run through an interpreter program.
+    </div>
+  </div>
+
+</section>
+
+<!-- ═══ APT ═══ -->
+<section id="apt" class="section">
+  <div class="section-header">
+    <span class="section-num">SECTION 02</span>
+    <span class="section-tag">// PRIMARY METHOD</span>
+    <h2 class="section-title">APT PACKAGE MANAGER</h2>
+    <p class="section-desc">APT is the official, recommended, and easiest way to install tools on Parrot OS. Start here for any tool that is available in Parrot repositories.</p>
+  </div>
+
+  <div class="concept-box cyan">
+    <div class="concept-label">WORKFLOW // APT INSTALLATION FLOW</div>
+    <div class="concept-title">How APT Works Internally</div>
+    <div class="concept-text">
+      When you run <code>apt install [tool]</code>, here's what happens inside Linux:
+      <br><br>
+      <strong>1.</strong> APT reads <code>/etc/apt/sources.list</code> to find repository servers<br>
+      <strong>2.</strong> APT queries the package database at <code>/var/lib/apt/lists/</code><br>
+      <strong>3.</strong> APT resolves all dependencies<br>
+      <strong>4.</strong> APT downloads <code>.deb</code> packages to <code>/var/cache/apt/archives/</code><br>
+      <strong>5.</strong> APT passes packages to <strong>dpkg</strong> for actual installation<br>
+      <strong>6.</strong> dpkg extracts files to correct locations (<code>/usr/bin/</code>, <code>/etc/</code>, etc.)<br>
+      <strong>7.</strong> dpkg records the installation in <code>/var/lib/dpkg/status</code>
+    </div>
+  </div>
+
+  <h3>Step 1: Update Package Lists</h3>
+  <p>Before installing anything, always update your package lists. This downloads the latest information about available packages from all repositories.</p>
+
+  <!-- COMMAND: sudo apt update -->
+  <div class="cmd-explain" id="explain-1">
+    <div class="cmd-explain-header" onclick="toggleExplain('explain-1')">
+      <span class="the-cmd">sudo apt update</span>
+      <span class="expand-icon">▼ CLICK TO EXPLAIN EACH PART</span>
+    </div>
+    <div class="cmd-explain-body">
+      <div class="explain-grid">
+        <div class="explain-part">
+          <div class="explain-token token-sudo">sudo</div>
+          <div class="explain-desc">Superuser Do — runs the following command as root (administrator). Required to modify system packages.</div>
+        </div>
+        <div class="explain-part">
+          <div class="explain-token token-cmd">apt</div>
+          <div class="explain-desc">Advanced Package Tool — the package manager for Debian/Ubuntu/Parrot OS systems.</div>
+        </div>
+        <div class="explain-part">
+          <div class="explain-token token-arg">update</div>
+          <div class="explain-desc">Sub-command: "refresh the package index." Downloads updated lists from all repositories. Does NOT install anything.</div>
+        </div>
+      </div>
+      <div class="explain-deep">
+        <strong>What happens internally:</strong> APT reads <span class="file-path">/etc/apt/sources.list</span> and every file in <span class="file-path">/etc/apt/sources.list.d/</span>. For each repository URL, it connects to the server and downloads a <code>Packages.gz</code> file containing the list of all available packages and their versions. These lists are saved to <span class="file-path">/var/lib/apt/lists/</span>. This is how APT knows what's available before you install.
+        <br><br>
+        <strong>Important:</strong> <code>update</code> ≠ upgrade. <code>update</code> only refreshes the list of what's available. It does not upgrade installed software.
+      </div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <span class="terminal-title">parrot@parrot:~$ — APT UPDATE</span>
+      <button class="copy-btn" onclick="copyCode(this, 'sudo apt update')">COPY</button>
+    </div>
+    <div class="terminal-body">
+      <div class="cmd-line"><span class="prompt">parrot@parrot:~$</span><span class="cmd"><span class="kw">sudo</span> apt update</span></div>
+      <div class="output-line">[sudo] password for parrot: </div>
+      <div class="output-line">Hit:1 https://deb.parrot.sh/parrot rolling InRelease</div>
+      <div class="output-line">Get:2 https://deb.parrot.sh/parrot rolling/main amd64 Packages [8,524 kB]</div>
+      <div class="output-line">Get:3 https://deb.parrot.sh/parrot rolling/contrib amd64 Packages [124 kB]</div>
+      <div class="output-ok">Reading package lists... Done</div>
+      <div class="output-ok">Building dependency tree... Done</div>
+      <div class="output-ok">All packages are up to date.</div>
+    </div>
+  </div>
+
+  <h3>Step 2: Search For A Tool</h3>
+
+  <div class="cmd-explain" id="explain-2">
+    <div class="cmd-explain-header" onclick="toggleExplain('explain-2')">
+      <span class="the-cmd">apt search nmap</span>
+      <span class="expand-icon">▼ EXPLAIN</span>
+    </div>
+    <div class="cmd-explain-body">
+      <div class="explain-grid">
+        <div class="explain-part">
+          <div class="explain-token token-cmd">apt</div>
+          <div class="explain-desc">Package manager (no sudo needed for searching — just reading)</div>
+        </div>
+        <div class="explain-part">
+          <div class="explain-token token-arg">search</div>
+          <div class="explain-desc">Searches package names and descriptions in the local package database</div>
+        </div>
+        <div class="explain-part">
+          <div class="explain-token token-arg">nmap</div>
+          <div class="explain-desc">The search term — finds all packages matching "nmap"</div>
+        </div>
+      </div>
+      <div class="explain-deep">
+        <strong>What happens internally:</strong> APT searches the cached package lists in <span class="file-path">/var/lib/apt/lists/</span>. It performs a text search against package names and descriptions. No network connection needed — this is why you must run <code>apt update</code> first to have current lists.
+      </div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <span class="terminal-title">APT SEARCH COMMANDS</span>
+      <button class="copy-btn" onclick="copyCode(this, 'apt search nmap\napt-cache search [tool-name]\napt show nmap')">COPY ALL</button>
+    </div>
+    <div class="terminal-body">
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">apt search <span class="arg">nmap</span></span></div>
+      <div class="output-line"># Search for packages matching "nmap"</div>
+      <div class="cmd-line" style="margin-top:10px"><span class="prompt">$</span><span class="cmd">apt-cache search <span class="arg">nmap</span></span></div>
+      <div class="output-line"># Old-style search — same result</div>
+      <div class="cmd-line" style="margin-top:10px"><span class="prompt">$</span><span class="cmd">apt show <span class="arg">nmap</span></span></div>
+      <div class="output-line"># Show detailed info about a package</div>
+      <div class="output-ok">Package: nmap</div>
+      <div class="output-line">Version: 7.95+dfsg1-1</div>
+      <div class="output-line">Depends: libc6, libgcc-s1, liblinear4, liblua5.4-0, libpcap0.8, ...</div>
+      <div class="output-line">Description: The Network Mapper</div>
+    </div>
+  </div>
+
+  <h3>Step 3: Install A Tool</h3>
+
+  <div class="cmd-explain" id="explain-3">
+    <div class="cmd-explain-header" onclick="toggleExplain('explain-3')">
+      <span class="the-cmd">sudo apt install nmap -y</span>
+      <span class="expand-icon">▼ EXPLAIN</span>
+    </div>
+    <div class="cmd-explain-body">
+      <div class="explain-grid">
+        <div class="explain-part">
+          <div class="explain-token token-sudo">sudo</div>
+          <div class="explain-desc">Required — installing modifies system files, so root access is needed.</div>
+        </div>
+        <div class="explain-part">
+          <div class="explain-token token-cmd">apt</div>
+          <div class="explain-desc">The Advanced Package Tool package manager</div>
+        </div>
+        <div class="explain-part">
+          <div class="explain-token token-arg">install</div>
+          <div class="explain-desc">Sub-command to install one or more packages</div>
+        </div>
+        <div class="explain-part">
+          <div class="explain-token token-arg">nmap</div>
+          <div class="explain-desc">The exact package name to install. You can list multiple: <code>nmap nikto gobuster</code></div>
+        </div>
+        <div class="explain-part">
+          <div class="explain-token token-flag">-y</div>
+          <div class="explain-desc">Short for --yes. Automatically answers "yes" to all prompts. Skips the "Do you want to continue?" question.</div>
+        </div>
+      </div>
+      <div class="explain-deep">
+        <strong>What happens internally:</strong>
+        <br>1. APT checks <span class="file-path">/var/lib/apt/lists/</span> for package metadata
+        <br>2. APT builds a dependency graph — finds ALL packages nmap needs
+        <br>3. Downloads <code>.deb</code> files to <span class="file-path">/var/cache/apt/archives/</span>
+        <br>4. dpkg extracts each <code>.deb</code> and places files:
+        <br>&nbsp;&nbsp;&nbsp;• Binary: <span class="file-path">/usr/bin/nmap</span>
+        <br>&nbsp;&nbsp;&nbsp;• Data files: <span class="file-path">/usr/share/nmap/</span>
+        <br>&nbsp;&nbsp;&nbsp;• Man page: <span class="file-path">/usr/share/man/man1/nmap.1.gz</span>
+        <br>5. dpkg records install in <span class="file-path">/var/lib/dpkg/status</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <span class="terminal-title">FULL APT WORKFLOW — NMAP EXAMPLE</span>
+      <button class="copy-btn" onclick="copyCode(this, 'sudo apt update\nsudo apt install nmap -y\nnmap --version\nwhich nmap')">COPY</button>
+    </div>
+    <div class="terminal-body">
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt update</span></div>
+      <div class="output-ok">Reading package lists... Done</div>
+      <div class="cmd-line" style="margin-top:8px"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt install <span class="arg">nmap</span> <span class="flag">-y</span></span></div>
+      <div class="output-line">Reading package lists... Done</div>
+      <div class="output-line">Building dependency tree... Done</div>
+      <div class="output-line">The following NEW packages will be installed: nmap</div>
+      <div class="output-line">0 upgraded, 1 newly installed, 0 to remove</div>
+      <div class="output-line">Need to get 5,812 kB of archives.</div>
+      <div class="output-line">Get:1 https://deb.parrot.sh nmap_7.95_amd64.deb [5,812 kB]</div>
+      <div class="output-line">Fetched 5,812 kB in 2s (2,906 kB/s)</div>
+      <div class="output-line">Selecting previously unselected package nmap.</div>
+      <div class="output-line">dpkg: nmap: extracting ... </div>
+      <div class="output-ok">Setting up nmap (7.95) ...</div>
+      <div class="output-ok">Processing triggers for man-db ...</div>
+      <div class="cmd-line" style="margin-top:8px"><span class="prompt">$</span><span class="cmd">nmap <span class="flag">--version</span></span></div>
+      <div class="output-ok">Nmap version 7.95 ( https://nmap.org )</div>
+      <div class="cmd-line" style="margin-top:8px"><span class="prompt">$</span><span class="cmd">which nmap</span></div>
+      <div class="output-ok">/usr/bin/nmap</div>
+    </div>
+  </div>
+
+  <h3>Complete APT Command Reference</h3>
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <span class="terminal-title">ALL ESSENTIAL APT COMMANDS</span>
+      <button class="copy-btn" onclick="copyCode(this, 'sudo apt update\nsudo apt upgrade -y\nsudo apt install [package] -y\nsudo apt remove [package]\nsudo apt purge [package]\nsudo apt autoremove\napt search [keyword]\napt show [package]\napt list --installed\nsudo apt-get install -f')">COPY</button>
+    </div>
+    <div class="terminal-body">
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt update</span></div>
+      <div class="output-line"># Refresh package list from repositories</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt upgrade <span class="flag">-y</span></span></div>
+      <div class="output-line"># Upgrade all installed packages to newest versions</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt install <span class="arg">[package-name]</span> <span class="flag">-y</span></span></div>
+      <div class="output-line"># Install a package (and its dependencies)</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt install <span class="arg">nmap nikto gobuster masscan</span> <span class="flag">-y</span></span></div>
+      <div class="output-line"># Install MULTIPLE packages at once</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt remove <span class="arg">[package]</span></span></div>
+      <div class="output-line"># Remove a package (keeps config files)</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt purge <span class="arg">[package]</span></span></div>
+      <div class="output-line"># Remove package AND its config files (full removal)</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt autoremove</span></div>
+      <div class="output-line"># Remove unused dependencies</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">apt search <span class="arg">metasploit</span></span></div>
+      <div class="output-line"># Search for packages matching term</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">apt show <span class="arg">metasploit-framework</span></span></div>
+      <div class="output-line"># Show detailed package info</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">apt list <span class="flag">--installed</span></span></div>
+      <div class="output-line"># List all installed packages</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt-get install <span class="flag">-f</span></span></div>
+      <div class="output-line"># Fix broken/interrupted installations</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> dpkg <span class="flag">-i</span> <span class="arg">package.deb</span></span></div>
+      <div class="output-line"># Install a manually downloaded .deb file</div>
+    </div>
+  </div>
+
+  <div class="tip-block">
+    <div class="tip-icon">💡</div>
+    <div class="tip-content"><strong>PRO TIP:</strong> Always run <code>sudo apt update</code> BEFORE <code>apt install</code>. If you skip the update, you may install an outdated version or get dependency errors. Make it a habit: update → install.</div>
+  </div>
+
+  <h3>Real Tool Installation Examples with APT</h3>
+  <div class="grid-2">
+    <div class="terminal">
+      <div class="terminal-header">
+        <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <span class="terminal-title">INSTALL METASPLOIT</span>
+        <button class="copy-btn" onclick="copyCode(this,'sudo apt update\nsudo apt install metasploit-framework -y\nmsfconsole')">COPY</button>
+      </div>
+      <div class="terminal-body">
+        <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt update</span></div>
+        <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt install <span class="arg">metasploit-framework</span> <span class="flag">-y</span></span></div>
+        <div class="output-ok">Setting up metasploit-framework ...</div>
+        <div class="cmd-line"><span class="prompt">$</span><span class="cmd">msfconsole</span></div>
+        <div class="output-ok"># Metasploit launches!</div>
+      </div>
+    </div>
+    <div class="terminal">
+      <div class="terminal-header">
+        <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <span class="terminal-title">INSTALL AIRCRACK-NG</span>
+        <button class="copy-btn" onclick="copyCode(this,'sudo apt update\nsudo apt install aircrack-ng -y\naircrack-ng --help')">COPY</button>
+      </div>
+      <div class="terminal-body">
+        <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt update</span></div>
+        <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt install <span class="arg">aircrack-ng</span> <span class="flag">-y</span></span></div>
+        <div class="output-ok">Setting up aircrack-ng ...</div>
+        <div class="cmd-line"><span class="prompt">$</span><span class="cmd">aircrack-ng <span class="flag">--help</span></span></div>
+        <div class="output-ok"># Aircrack-ng runs!</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ GITHUB ═══ -->
+<section id="github" class="section">
+  <div class="section-header">
+    <span class="section-num">SECTION 03</span>
+    <span class="section-tag">// LATEST CUTTING-EDGE TOOLS</span>
+    <h2 class="section-title">INSTALLING FROM GITHUB</h2>
+    <p class="section-desc">Many security tools are published directly on GitHub before (or instead of) being added to APT repositories. This method gets you the latest versions directly from developers.</p>
+  </div>
+
+  <div class="concept-box cyan">
+    <div class="concept-label">CONCEPT // GIT</div>
+    <div class="concept-title">What Is Git and GitHub?</div>
+    <div class="concept-text">
+      <strong>Git</strong> is a version control system — it tracks changes to code over time. <strong>GitHub</strong> is a website that hosts Git repositories.
+      <br><br>
+      When you <code>git clone</code>, you download a complete copy of the repository (all source files) to your computer. Many hackers publish their tools on GitHub, making it the go-to source for cutting-edge tools.
+    </div>
+  </div>
+
+  <h3>Step 1: Install Git (if not present)</h3>
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <span class="terminal-title">INSTALL GIT</span>
+      <button class="copy-btn" onclick="copyCode(this,'sudo apt install git -y\ngit --version')">COPY</button>
+    </div>
+    <div class="terminal-body">
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt install <span class="arg">git</span> <span class="flag">-y</span></span></div>
+      <div class="output-ok">Setting up git ...</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">git <span class="flag">--version</span></span></div>
+      <div class="output-ok">git version 2.45.2</div>
+    </div>
+  </div>
+
+  <h3>Step 2: Clone The Repository</h3>
+
+  <div class="cmd-explain" id="explain-git">
+    <div class="cmd-explain-header" onclick="toggleExplain('explain-git')">
+      <span class="the-cmd">git clone https://github.com/user/tool.git</span>
+      <span class="expand-icon">▼ EXPLAIN</span>
+    </div>
+    <div class="cmd-explain-body">
+      <div class="explain-grid">
+        <div class="explain-part">
+          <div class="explain-token token-cmd">git</div>
+          <div class="explain-desc">The Git version control command</div>
+        </div>
+        <div class="explain-part">
+          <div class="explain-token token-arg">clone</div>
+          <div class="explain-desc">Sub-command: creates a complete copy of a remote repository on your local machine</div>
+        </div>
+        <div class="explain-part">
+          <div class="explain-token token-arg">https://github.com/...</div>
+          <div class="explain-desc">The URL of the repository to clone. Found on the GitHub page under the green "Code" button.</div>
+        </div>
+      </div>
+      <div class="explain-deep">
+        <strong>What happens internally:</strong> Git connects to GitHub's servers, downloads all files in the repository, and creates a directory named after the repo in your current directory. A hidden <span class="file-path">.git/</span> folder is created storing version history. The download includes ALL versions of all files ever committed.
+      </div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <span class="terminal-title">GIT CLONE COMMANDS</span>
+      <button class="copy-btn" onclick="copyCode(this,'git clone https://github.com/user/reponame.git\ngit clone --depth 1 https://github.com/user/tool.git\ncd tool/')">COPY</button>
+    </div>
+    <div class="terminal-body">
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">git clone <span class="url">https://github.com/user/reponame.git</span></span></div>
+      <div class="output-line"># Clone to current directory</div>
+      <div class="output-line">Cloning into 'reponame'...</div>
+      <div class="output-line">remote: Enumerating objects: 1,234, done.</div>
+      <div class="output-ok">Receiving objects: 100% (1234/1234), done.</div>
+      <div class="cmd-line" style="margin-top:10px"><span class="prompt">$</span><span class="cmd">git clone <span class="flag">--depth 1</span> <span class="url">https://github.com/user/tool.git</span></span></div>
+      <div class="output-line"># --depth 1 = only download latest version (faster, saves space)</div>
+      <div class="cmd-line" style="margin-top:10px"><span class="prompt">$</span><span class="cmd">cd <span class="path">tool/</span></span></div>
+      <div class="output-line"># Navigate INTO the cloned directory</div>
+    </div>
+  </div>
+
+  <h3>Step 3: Read README.md First!</h3>
+  <div class="concept-box yellow">
+    <div class="concept-label">CRITICAL RULE</div>
+    <div class="concept-title">Always Read README.md Before Installing</div>
+    <div class="concept-text">
+      Every GitHub repository has a <code>README.md</code> file with installation instructions specific to that tool. ALWAYS read it first. Run:
+      <br><br>
+      <code>ls</code> — see what files are there<br>
+      <code>cat README.md</code> — read installation instructions<br>
+      <code>less README.md</code> — paginated view (q to quit)
+    </div>
+  </div>
+
+  <h3>Common GitHub Installation Patterns</h3>
+
+  <div class="method-tabs" id="github-tabs">
+    <button class="method-tab active" onclick="switchTab('github-tabs','github-panel', this)">PYTHON TOOL</button>
+    <button class="method-tab" onclick="switchTab('github-tabs','github-panel2', this)">BASH SCRIPT</button>
+    <button class="method-tab" onclick="switchTab('github-tabs','github-panel3', this)">C COMPILED</button>
+    <button class="method-tab" onclick="switchTab('github-tabs','github-panel4', this)">REQUIREMENTS</button>
+  </div>
+
+  <div id="github-panel" class="method-panel active">
+    <div class="terminal">
+      <div class="terminal-header">
+        <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <span class="terminal-title">PYTHON TOOL FROM GITHUB</span>
+        <button class="copy-btn" onclick="copyCode(this,'git clone https://github.com/user/tool.git\ncd tool\npip3 install -r requirements.txt\npython3 tool.py --help')">COPY</button>
+      </div>
+      <div class="terminal-body">
+        <div class="cmd-line"><span class="prompt">$</span><span class="cmd">git clone <span class="url">https://github.com/user/tool.git</span></span></div>
+        <div class="cmd-line"><span class="prompt">$</span><span class="cmd">cd <span class="path">tool</span></span></div>
+        <div class="cmd-line"><span class="prompt">$</span><span class="cmd">cat README.md <span class="comment"># Read install instructions first!</span></span></div>
+        <div class="cmd-line"><span class="prompt">$</span><span class="cmd">pip3 install <span class="flag">-r</span> <span class="arg">requirements.txt</span></span></div>
+        <div class="output-ok">Successfully installed all dependencies</div>
+        <div class="cmd-line"><span class="prompt">$</span><span class="cmd">python3 tool.py <span class="flag">--help</span></span></div>
+        <div class="output-ok"># Tool runs!</div>
+      </div>
+    </div>
+    <div class="concept-text" style="color:#88aa88; font-size:.9rem; margin-top:8px; font-family:var(--font-body)">
+      Python tools are run directly with <code>python3</code>. The <code>requirements.txt</code> file lists all Python libraries the tool needs.
+    </div>
+  </div>
+
+  <div id="github-panel2" class="method-panel">
+    <div class="terminal">
+      <div class="terminal-header">
+        <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <span class="terminal-title">BASH SCRIPT FROM GITHUB</span>
+        <button class="copy-btn" onclick="copyCode(this,'git clone https://github.com/user/tool.git\ncd tool\nchmod +x tool.sh\n./tool.sh\n# Or install system-wide:\nsudo cp tool.sh /usr/local/bin/tool\nsudo chmod +x /usr/local/bin/tool')">COPY</button>
+      </div>
+      <div class="terminal-body">
+        <div class="cmd-line"><span class="prompt">$</span><span class="cmd">git clone <span class="url">https://github.com/user/tool.git</span></span></div>
+        <div class="cmd-line"><span class="prompt">$</span><span class="cmd">cd <span class="path">tool</span></span></div>
+        <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">chmod</span> <span class="flag">+x</span> tool.sh</span></div>
+        <div class="output-line"># chmod +x makes the file executable</div>
+        <div class="cmd-line"><span class="prompt">$</span><span class="cmd">./tool.sh</span></div>
+        <div class="output-line"># ./ means "run from current directory"</div>
+        <div class="output-line" style="margin-top:10px"># To run from anywhere (install system-wide):</div>
+        <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> cp tool.sh <span class="path">/usr/local/bin/tool</span></span></div>
+        <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> chmod <span class="flag">+x</span> <span class="path">/usr/local/bin/tool</span></span></div>
+        <div class="cmd-line"><span class="prompt">$</span><span class="cmd">tool</span></div>
+        <div class="output-ok"># Runs from anywhere now!</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="github-panel3" class="method-panel">
+    <div class="terminal">
+      <div class="terminal-header">
+        <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <span class="terminal-title">C/C++ COMPILED TOOL FROM GITHUB</span>
+        <button class="copy-btn" onclick="copyCode(this,'sudo apt install build-essential -y\ngit clone https://github.com/user/tool.git\ncd tool\nmake\nsudo make install\ntool --help')">COPY</button>
+      </div>
+      <div class="terminal-body">
+        <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt install <span class="arg">build-essential</span> <span class="flag">-y</span></span></div>
+        <div class="output-line"># build-essential includes gcc, g++, make</div>
+        <div class="cmd-line"><span class="prompt">$</span><span class="cmd">git clone <span class="url">https://github.com/user/tool.git</span></span></div>
+        <div class="cmd-line"><span class="prompt">$</span><span class="cmd">cd <span class="path">tool</span></span></div>
+        <div class="cmd-line"><span class="prompt">$</span><span class="cmd">make</span></div>
+        <div class="output-line">gcc -o tool main.c utils.c -lcrypto ...</div>
+        <div class="output-ok">Build successful!</div>
+        <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> make install</span></div>
+        <div class="output-line">install -m 755 tool /usr/local/bin/tool</div>
+        <div class="cmd-line"><span class="prompt">$</span><span class="cmd">tool <span class="flag">--help</span></span></div>
+        <div class="output-ok"># Works from anywhere!</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="github-panel4" class="method-panel">
+    <div class="terminal">
+      <div class="terminal-header">
+        <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <span class="terminal-title">SETUP.PY INSTALLATION</span>
+        <button class="copy-btn" onclick="copyCode(this,'git clone https://github.com/user/tool.git\ncd tool\nsudo python3 setup.py install\n# OR (preferred modern method):\npip3 install .')">COPY</button>
+      </div>
+      <div class="terminal-body">
+        <div class="cmd-line"><span class="prompt">$</span><span class="cmd">git clone <span class="url">https://github.com/user/tool.git</span></span></div>
+        <div class="cmd-line"><span class="prompt">$</span><span class="cmd">cd <span class="path">tool</span></span></div>
+        <div class="cmd-line"><span class="prompt">$</span><span class="cmd">ls</span></div>
+        <div class="output-line">setup.py  requirements.txt  README.md  tool/</div>
+        <div class="cmd-line"><span class="prompt">$</span><span class="cmd">pip3 install <span class="arg">.</span></span></div>
+        <div class="output-line"># The dot (.) means "install from current directory"</div>
+        <div class="output-ok">Successfully installed tool</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Real Example: Installing sqlmap from GitHub</h3>
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <span class="terminal-title">SQLMAP FULL INSTALLATION DEMO</span>
+      <button class="copy-btn" onclick="copyCode(this,'sudo apt install git python3 -y\ncd /opt\nsudo git clone --depth 1 https://github.com/sqlmapproject/sqlmap.git sqlmap-dev\ncd sqlmap-dev\npython3 sqlmap.py --version\n# Create an alias for easy access:\necho \"alias sqlmap=\'python3 /opt/sqlmap-dev/sqlmap.py\'\" >> ~/.bashrc\nsource ~/.bashrc\nsqlmap --version')">COPY</button>
+    </div>
+    <div class="terminal-body">
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt install <span class="arg">git python3</span> <span class="flag">-y</span></span></div>
+      <div class="output-ok">Dependencies installed</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">cd <span class="path">/opt</span></span></div>
+      <div class="output-line"># /opt is for optional/third-party tools — good practice!</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> git clone <span class="flag">--depth 1</span> <span class="url">https://github.com/sqlmapproject/sqlmap.git</span> <span class="arg">sqlmap-dev</span></span></div>
+      <div class="output-line">Cloning into 'sqlmap-dev'...</div>
+      <div class="output-ok">Receiving objects: 100%, done.</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">cd <span class="path">sqlmap-dev</span></span></div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">python3 sqlmap.py <span class="flag">--version</span></span></div>
+      <div class="output-ok">sqlmap/1.8.7 — https://sqlmap.org</div>
+      <div class="output-line" style="margin-top:10px"># Create an alias so you can type 'sqlmap' from anywhere:</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">echo <span class="arg">"alias sqlmap='python3 /opt/sqlmap-dev/sqlmap.py'"</span> >> ~/.bashrc</span></div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">source <span class="path">~/.bashrc</span></span></div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">sqlmap <span class="flag">--version</span></span></div>
+      <div class="output-ok">sqlmap/1.8.7 — works from anywhere!</div>
+    </div>
+  </div>
+
+  <div class="tip-block">
+    <div class="tip-icon">⚡</div>
+    <div class="tip-content"><strong>PRO TIP:</strong> Install custom tools in <code>/opt/</code> rather than your home directory. This keeps them organized and makes them accessible to all users. Many professional security distributions use this convention.</div>
+  </div>
+</section>
+
+<!-- ═══ PYTHON ═══ -->
+<section id="python" class="section">
+  <div class="section-header">
+    <span class="section-num">SECTION 04</span>
+    <span class="section-tag">// PIP / PIPX / VENV</span>
+    <h2 class="section-title">PYTHON TOOLS</h2>
+    <p class="section-desc">Python is the dominant language in cybersecurity tooling. Understanding pip and virtual environments is essential for every security professional.</p>
+  </div>
+
+  <div class="concept-box">
+    <div class="concept-label">CONCEPT // PIP</div>
+    <div class="concept-title">What Is pip?</div>
+    <div class="concept-text">
+      <strong>pip</strong> is Python's package manager — the Python equivalent of APT. It installs Python libraries and tools from <strong>PyPI</strong> (Python Package Index) at <code>pypi.org</code>.
+      <br><br>
+      Always use <code>pip3</code> (Python 3) not <code>pip</code> (Python 2, outdated). On Parrot OS, <code>pip3</code> is what you want.
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <span class="terminal-title">PIP ESSENTIAL COMMANDS</span>
+      <button class="copy-btn" onclick="copyCode(this,'pip3 install [package]\npip3 install [package] --user\npip3 install -r requirements.txt\npip3 uninstall [package]\npip3 list\npip3 show [package]\npip3 install --upgrade [package]')">COPY</button>
+    </div>
+    <div class="terminal-body">
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">pip3 install <span class="arg">scapy</span></span></div>
+      <div class="output-line"># Install Python package globally</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">pip3 install <span class="arg">scapy</span> <span class="flag">--user</span></span></div>
+      <div class="output-line"># Install for current user only (no sudo needed)</div>
+      <div class="output-line"># Installed to ~/.local/lib/python3.x/site-packages/</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">pip3 install <span class="flag">-r</span> <span class="arg">requirements.txt</span></span></div>
+      <div class="output-line"># Install all packages listed in requirements.txt</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">pip3 uninstall <span class="arg">scapy</span></span></div>
+      <div class="output-line"># Remove a package</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">pip3 list</span></div>
+      <div class="output-line"># Show all installed Python packages</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">pip3 show <span class="arg">scapy</span></span></div>
+      <div class="output-line"># Show info about a package</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">pip3 install <span class="flag">--upgrade</span> <span class="arg">scapy</span></span></div>
+      <div class="output-line"># Update a package to latest version</div>
+    </div>
+  </div>
+
+  <h3>The Modern Way: pipx</h3>
+  <div class="concept-box cyan">
+    <div class="concept-label">CONCEPT // PIPX</div>
+    <div class="concept-title">pipx — The Safe Way to Install Python CLI Tools</div>
+    <div class="concept-text">
+      <strong>pipx</strong> installs each Python CLI tool in its own isolated environment. This prevents dependency conflicts between tools. It's the <strong>recommended way</strong> to install Python security tools on Parrot OS.
+      <br><br>
+      Newer Parrot OS versions enforce <code>PEP 668</code>, which prevents pip from installing packages system-wide. <code>pipx</code> is the proper solution.
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <span class="terminal-title">PIPX INSTALLATION AND USAGE</span>
+      <button class="copy-btn" onclick="copyCode(this,'sudo apt install pipx -y\npipx ensurepath\nsource ~/.bashrc\npipx install impacket\npipx install crackmapexec\npipx list\npipx upgrade impacket\npipx uninstall crackmapexec')">COPY</button>
+    </div>
+    <div class="terminal-body">
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt install <span class="arg">pipx</span> <span class="flag">-y</span></span></div>
+      <div class="output-ok">pipx installed</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">pipx ensurepath</span></div>
+      <div class="output-line"># Adds ~/.local/bin to your PATH</div>
+      <div class="output-ok">Success! Added ~/.local/bin to PATH in ~/.bashrc</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">source <span class="path">~/.bashrc</span></span></div>
+      <div class="output-line"># Reload shell config to apply PATH change</div>
+      <div class="cmd-line" style="margin-top:10px"><span class="prompt">$</span><span class="cmd">pipx install <span class="arg">impacket</span></span></div>
+      <div class="output-ok">installed package impacket 0.12.0 (isolated)</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">pipx install <span class="arg">crackmapexec</span></span></div>
+      <div class="output-ok">installed package crackmapexec</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">pipx list</span></div>
+      <div class="output-line">venvs are in ~/.local/pipx/venvs</div>
+      <div class="output-ok">impacket 0.12.0 (crackmapexec, impacket-...)</div>
+    </div>
+  </div>
+
+  <h3>Virtual Environments (venv)</h3>
+  <div class="concept-box yellow">
+    <div class="concept-label">CONCEPT // VIRTUAL ENVIRONMENT</div>
+    <div class="concept-title">Isolating Python Projects with venv</div>
+    <div class="concept-text">
+      A <strong>virtual environment</strong> is an isolated Python installation. Each project gets its own Python, its own pip, and its own packages. Changes in one environment don't affect others.
+      <br><br>
+      This is crucial when two tools require conflicting versions of the same library.
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <span class="terminal-title">VIRTUAL ENVIRONMENT WORKFLOW</span>
+      <button class="copy-btn" onclick="copyCode(this,'python3 -m venv myenv\nsource myenv/bin/activate\n# Your prompt now shows (myenv)\npip3 install scapy impacket\npython3 tool.py\n# When done:\ndeactivate')">COPY</button>
+    </div>
+    <div class="terminal-body">
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">python3 <span class="flag">-m venv</span> <span class="arg">myenv</span></span></div>
+      <div class="output-line"># Creates a virtual env directory called "myenv"</div>
+      <div class="output-line"># Contains its own Python, pip, and site-packages</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">source <span class="path">myenv/bin/activate</span></span></div>
+      <div class="output-line"># ACTIVATE the virtual environment</div>
+      <div class="cmd-line"><span class="prompt">(myenv) $</span><span class="cmd">pip3 install <span class="arg">scapy impacket</span></span></div>
+      <div class="output-line"># Installs ONLY inside this venv, not system-wide</div>
+      <div class="output-ok">Successfully installed scapy-2.5.0 impacket-0.12</div>
+      <div class="cmd-line"><span class="prompt">(myenv) $</span><span class="cmd">python3 tool.py</span></div>
+      <div class="output-ok"># Run your tool with isolated dependencies</div>
+      <div class="cmd-line"><span class="prompt">(myenv) $</span><span class="cmd">deactivate</span></div>
+      <div class="output-line"># Exit the virtual environment, return to normal</div>
+      <div class="cmd-line"><span class="prompt">$</span></div>
+    </div>
+  </div>
+
+  <h3>Real Example: Installing Impacket</h3>
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <span class="terminal-title">IMPACKET FULL INSTALLATION</span>
+      <button class="copy-btn" onclick="copyCode(this,'sudo apt install python3-pip python3-venv git -y\ngit clone https://github.com/fortra/impacket.git\ncd impacket\npython3 -m venv impacket-venv\nsource impacket-venv/bin/activate\npip3 install .\npip3 install -r requirements.txt\npython3 -c "import impacket; print(impacket.__version__)"')">COPY</button>
+    </div>
+    <div class="terminal-body">
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt install <span class="arg">python3-pip python3-venv git</span> <span class="flag">-y</span></span></div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">git clone <span class="url">https://github.com/fortra/impacket.git</span></span></div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">cd <span class="path">impacket</span></span></div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">python3 <span class="flag">-m venv</span> <span class="arg">impacket-venv</span></span></div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">source <span class="path">impacket-venv/bin/activate</span></span></div>
+      <div class="cmd-line"><span class="prompt">(impacket-venv) $</span><span class="cmd">pip3 install .</span></div>
+      <div class="output-ok">Successfully installed impacket-0.12.0</div>
+      <div class="cmd-line"><span class="prompt">(impacket-venv) $</span><span class="cmd">python3 <span class="flag">-c</span> <span class="arg">"import impacket; print(impacket.__version__)"</span></span></div>
+      <div class="output-ok">0.12.0</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ GO ═══ -->
+<section id="go" class="section">
+  <div class="section-header">
+    <span class="section-num">SECTION 05</span>
+    <span class="section-tag">// BLAZING FAST TOOLS</span>
+    <h2 class="section-title">GO TOOLS</h2>
+    <p class="section-desc">Many modern security tools (ffuf, nuclei, subfinder, httpx, amass) are written in Go because it compiles to fast static binaries. Go tools are extremely popular in bug bounty hunting.</p>
+  </div>
+
+  <h3>Step 1: Install Go</h3>
+
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <span class="terminal-title">INSTALL GO ON PARROT OS</span>
+      <button class="copy-btn" onclick="copyCode(this,'sudo apt install golang-go -y\ngo version\n# Or install latest Go manually:\nwget https://go.dev/dl/go1.22.0.linux-amd64.tar.gz\nsudo tar -C /usr/local -xzf go1.22.0.linux-amd64.tar.gz\necho \'export PATH=$PATH:/usr/local/go/bin\' >> ~/.bashrc\nsource ~/.bashrc\ngo version')">COPY</button>
+    </div>
+    <div class="terminal-body">
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt install <span class="arg">golang-go</span> <span class="flag">-y</span></span></div>
+      <div class="output-ok">Setting up golang-go ...</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">go version</span></div>
+      <div class="output-ok">go version go1.22.0 linux/amd64</div>
+      <div class="output-line" style="margin-top:10px"># --- OR install latest version manually ---</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">wget <span class="url">https://go.dev/dl/go1.22.0.linux-amd64.tar.gz</span></span></div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> tar <span class="flag">-C</span> <span class="path">/usr/local</span> <span class="flag">-xzf</span> go1.22.0.linux-amd64.tar.gz</span></div>
+      <div class="output-line"># tar: extracts .tar.gz archive to /usr/local/</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">echo <span class="arg">'export PATH=$PATH:/usr/local/go/bin'</span> >> ~/.bashrc</span></div>
+      <div class="output-line"># Add Go binary to PATH permanently</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">source <span class="path">~/.bashrc</span></span></div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">go version</span></div>
+      <div class="output-ok">go version go1.22.0 linux/amd64</div>
+    </div>
+  </div>
+
+  <h3>Step 2: Configure GOPATH</h3>
+
+  <div class="concept-box">
+    <div class="concept-label">CONCEPT // GOPATH AND GOBIN</div>
+    <div class="concept-title">Where Go Tools Are Installed</div>
+    <div class="concept-text">
+      <strong>GOPATH</strong> is Go's workspace directory. By default: <code>~/go/</code><br>
+      <strong>GOBIN</strong> is where <code>go install</code> puts compiled binaries. Default: <code>~/go/bin/</code>
+      <br><br>
+      For Go tools to work from anywhere, <code>~/go/bin/</code> must be in your PATH. Add it once and forget it.
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <span class="terminal-title">SETUP GO PATH — DO THIS ONCE</span>
+      <button class="copy-btn" onclick="copyCode(this,'echo \'export GOPATH=$HOME/go\' >> ~/.bashrc\necho \'export PATH=$PATH:$GOPATH/bin\' >> ~/.bashrc\nsource ~/.bashrc\necho $GOPATH\necho $PATH')">COPY</button>
+    </div>
+    <div class="terminal-body">
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">echo <span class="arg">'export GOPATH=$HOME/go'</span> >> <span class="path">~/.bashrc</span></span></div>
+      <div class="output-line"># Set GOPATH to ~/go/ directory</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">echo <span class="arg">'export PATH=$PATH:$GOPATH/bin'</span> >> <span class="path">~/.bashrc</span></span></div>
+      <div class="output-line"># Add ~/go/bin/ to PATH</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">source <span class="path">~/.bashrc</span></span></div>
+      <div class="output-line"># Apply the changes immediately</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">echo <span class="arg">$GOPATH</span></span></div>
+      <div class="output-ok">/home/parrot/go</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">echo <span class="arg">$PATH</span></span></div>
+      <div class="output-ok">...:/home/parrot/go/bin:/usr/local/go/bin:...</div>
+    </div>
+  </div>
+
+  <h3>Step 3: Install Go Tools</h3>
+
+  <div class="cmd-explain" id="explain-go">
+    <div class="cmd-explain-header" onclick="toggleExplain('explain-go')">
+      <span class="the-cmd">go install github.com/ffuf/ffuf/v2@latest</span>
+      <span class="expand-icon">▼ EXPLAIN</span>
+    </div>
+    <div class="cmd-explain-body">
+      <div class="explain-grid">
+        <div class="explain-part">
+          <div class="explain-token token-cmd">go</div>
+          <div class="explain-desc">The Go programming language toolchain</div>
+        </div>
+        <div class="explain-part">
+          <div class="explain-token token-arg">install</div>
+          <div class="explain-desc">Compile and install a Go package as a binary</div>
+        </div>
+        <div class="explain-part">
+          <div class="explain-token token-arg">github.com/ffuf/ffuf/v2</div>
+          <div class="explain-desc">The Go module path — tells Go where to find the source code</div>
+        </div>
+        <div class="explain-part">
+          <div class="explain-token token-flag">@latest</div>
+          <div class="explain-desc">Version specifier — install the latest release. Can also use @v2.1.0 for a specific version.</div>
+        </div>
+      </div>
+      <div class="explain-deep">
+        <strong>What happens internally:</strong> Go downloads the source code from GitHub (or its module proxy), compiles it into a binary for your CPU architecture, and places the compiled binary in <span class="file-path">~/go/bin/</span>. The entire compilation happens on your machine. This is why Go tools are fast — they become native machine code.
+      </div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <span class="terminal-title">INSTALL POPULAR GO SECURITY TOOLS</span>
+      <button class="copy-btn" onclick="copyCode(this,'# ffuf — web fuzzer\ngo install github.com/ffuf/ffuf/v2@latest\n\n# nuclei — vulnerability scanner\ngo install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest\n\n# subfinder — subdomain enumeration\ngo install github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest\n\n# httpx — HTTP probing\ngo install github.com/projectdiscovery/httpx/cmd/httpx@latest\n\n# gobuster — directory/subdomain brute-forcing\ngo install github.com/OJ/gobuster/v3@latest\n\n# Verify installations:\nffuf -V\nnuclei -version')">COPY</button>
+    </div>
+    <div class="terminal-body">
+      <div class="output-line"># INSTALL POPULAR GO SECURITY TOOLS</div>
+      <div class="cmd-line" style="margin-top:8px"><span class="prompt">$</span><span class="cmd">go install <span class="arg">github.com/ffuf/ffuf/v2</span><span class="flag">@latest</span></span></div>
+      <div class="output-ok">go: downloading ffuf v2.1.0</div>
+      <div class="output-ok">Installed: ~/go/bin/ffuf</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">go install <span class="arg">github.com/projectdiscovery/nuclei/v3/cmd/nuclei</span><span class="flag">@latest</span></span></div>
+      <div class="output-ok">Installed: ~/go/bin/nuclei</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">go install <span class="arg">github.com/projectdiscovery/subfinder/v2/cmd/subfinder</span><span class="flag">@latest</span></span></div>
+      <div class="output-ok">Installed: ~/go/bin/subfinder</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">go install <span class="arg">github.com/OJ/gobuster/v3</span><span class="flag">@latest</span></span></div>
+      <div class="output-ok">Installed: ~/go/bin/gobuster</div>
+      <div class="cmd-line" style="margin-top:10px"><span class="prompt">$</span><span class="cmd">ffuf <span class="flag">-V</span></span></div>
+      <div class="output-ok">ffuf version: 2.1.0</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">nuclei <span class="flag">-version</span></span></div>
+      <div class="output-ok">Nuclei Engine Version: v3.2.0</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">ls <span class="path">~/go/bin/</span></span></div>
+      <div class="output-ok">ffuf  gobuster  httpx  nuclei  subfinder</div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ═══ SNAP / FLATPAK ═══ -->
+<section id="snap" class="section">
+  <div class="section-header">
+    <span class="section-num">SECTION 06</span>
+    <span class="section-tag">// SANDBOXED APPS</span>
+    <h2 class="section-title">SNAP & FLATPAK</h2>
+    <p class="section-desc">Modern sandboxed package formats that bundle an application with all its dependencies. Useful for GUI applications and when you need a specific version isolated from the system.</p>
+  </div>
+
+  <div class="grid-2">
+    <div class="concept-box">
+      <div class="concept-label">SNAP</div>
+      <div class="concept-title">Canonical's Snap Package System</div>
+      <div class="concept-text">
+        Snaps are self-contained packages that include the app and ALL its dependencies. They run in a sandbox. Developed by Canonical (Ubuntu).
+        <br><br>
+        Snaps auto-update. They take more disk space but avoid dependency conflicts entirely.
+      </div>
+    </div>
+    <div class="concept-box cyan">
+      <div class="concept-label">FLATPAK</div>
+      <div class="concept-title">Flatpak — Universal Linux App Format</div>
+      <div class="concept-text">
+        Flatpak is similar to Snap but uses <strong>Flathub</strong> as its main repository. More common for desktop GUI applications. Works across all Linux distributions.
+        <br><br>
+        Also sandboxed — apps run isolated from the system.
+      </div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <span class="terminal-title">SNAP COMMANDS</span>
+      <button class="copy-btn" onclick="copyCode(this,'sudo apt install snapd -y\nsudo systemctl start snapd\nsudo systemctl enable snapd\nsnap search [tool]\nsnap install [tool]\nsnap list\nsnap remove [tool]\nsnap refresh [tool]')">COPY</button>
+    </div>
+    <div class="terminal-body">
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt install <span class="arg">snapd</span> <span class="flag">-y</span></span></div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> systemctl start snapd</span></div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> systemctl enable snapd</span></div>
+      <div class="output-line"># Start and enable the Snap daemon</div>
+      <div class="cmd-line" style="margin-top:10px"><span class="prompt">$</span><span class="cmd">snap search <span class="arg">burpsuite</span></span></div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> snap install <span class="arg">burpsuite</span></span></div>
+      <div class="output-ok">burpsuite (2024.x.x) from PortSwigger installed</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">snap list</span></div>
+      <div class="output-line"># List installed snaps</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> snap remove <span class="arg">burpsuite</span></span></div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> snap refresh <span class="arg">burpsuite</span></span></div>
+      <div class="output-line"># Update a specific snap</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <span class="terminal-title">FLATPAK COMMANDS</span>
+      <button class="copy-btn" onclick="copyCode(this,'sudo apt install flatpak -y\nflatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo\nflatpak search [app]\nflatpak install flathub [app-id]\nflatpak list\nflatpak uninstall [app-id]\nflatpak update')">COPY</button>
+    </div>
+    <div class="terminal-body">
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt install <span class="arg">flatpak</span> <span class="flag">-y</span></span></div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">flatpak remote-add <span class="flag">--if-not-exists</span> <span class="arg">flathub</span> <span class="url">https://dl.flathub.org/repo/flathub.flatpakrepo</span></span></div>
+      <div class="output-line"># Add Flathub repository — the main Flatpak app store</div>
+      <div class="cmd-line" style="margin-top:10px"><span class="prompt">$</span><span class="cmd">flatpak search <span class="arg">wireshark</span></span></div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">flatpak install <span class="arg">flathub org.wireshark.Wireshark</span></span></div>
+      <div class="output-ok">Installing org.wireshark.Wireshark ...</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">flatpak run <span class="arg">org.wireshark.Wireshark</span></span></div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">flatpak update</span></div>
+      <div class="output-line"># Update ALL Flatpak apps</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ COMPILE FROM SOURCE ═══ -->
+<section id="source" class="section">
+  <div class="section-header">
+    <span class="section-num">SECTION 07</span>
+    <span class="section-tag">// MAXIMUM CONTROL</span>
+    <h2 class="section-title">COMPILE FROM SOURCE</h2>
+    <p class="section-desc">Compiling from source gives you the absolute latest code, custom build options, and full control. Required when no pre-built package exists.</p>
+  </div>
+
+  <div class="concept-box">
+    <div class="concept-label">CONCEPT // COMPILATION</div>
+    <div class="concept-title">What Is Compilation?</div>
+    <div class="concept-text">
+      Source code is human-readable text (<code>.c</code>, <code>.cpp</code> files). Your CPU cannot run it directly. A <strong>compiler</strong> (like GCC) translates source code into <strong>machine code</strong> — a binary that your CPU executes.
+      <br><br>
+      The compilation pipeline: <code>Source Code → Preprocessor → Compiler → Assembler → Linker → Binary</code>
+    </div>
+  </div>
+
+  <h3>Step 1: Install Build Tools</h3>
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <span class="terminal-title">INSTALL BUILD ESSENTIALS</span>
+      <button class="copy-btn" onclick="copyCode(this,'sudo apt install build-essential gcc g++ make cmake autoconf automake libtool pkg-config -y\ngcc --version\nmake --version\ncmake --version')">COPY</button>
+    </div>
+    <div class="terminal-body">
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt install <span class="arg">build-essential gcc g++ make cmake autoconf automake libtool pkg-config</span> <span class="flag">-y</span></span></div>
+      <div class="output-line"># build-essential: includes gcc, g++, make, and core dev libraries</div>
+      <div class="output-line"># cmake: modern build system alternative to make</div>
+      <div class="output-line"># autoconf/automake: generate configure scripts</div>
+      <div class="output-ok">All build tools installed</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">gcc <span class="flag">--version</span></span></div>
+      <div class="output-ok">gcc (Debian 13.3.0) 13.3.0</div>
+    </div>
+  </div>
+
+  <h3>The Classic ./configure && make && make install Pattern</h3>
+
+  <div class="cmd-explain" id="explain-src1">
+    <div class="cmd-explain-header" onclick="toggleExplain('explain-src1')">
+      <span class="the-cmd">./configure --prefix=/usr/local</span>
+      <span class="expand-icon">▼ EXPLAIN</span>
+    </div>
+    <div class="cmd-explain-body">
+      <div class="explain-grid">
+        <div class="explain-part">
+          <div class="explain-token token-cmd">./configure</div>
+          <div class="explain-desc">Run the configure script from current directory. Checks that all dependencies are present and generates a Makefile tailored to your system.</div>
+        </div>
+        <div class="explain-part">
+          <div class="explain-token token-flag">--prefix=/usr/local</div>
+          <div class="explain-desc">Where to install the compiled program. Default is /usr/local. This means: binary → /usr/local/bin/, libraries → /usr/local/lib/, etc.</div>
+        </div>
+      </div>
+      <div class="explain-deep">
+        <strong>What happens:</strong> The configure script runs hundreds of small checks — "does libssl exist?", "is gcc version &gt;= 9?", "what architecture are we on?" — and creates a <span class="file-path">Makefile</span> with all the correct compiler flags and paths for YOUR system.
+      </div>
+    </div>
+  </div>
+
+  <div class="cmd-explain" id="explain-src2">
+    <div class="cmd-explain-header" onclick="toggleExplain('explain-src2')">
+      <span class="the-cmd">make -j$(nproc)</span>
+      <span class="expand-icon">▼ EXPLAIN</span>
+    </div>
+    <div class="cmd-explain-body">
+      <div class="explain-grid">
+        <div class="explain-part">
+          <div class="explain-token token-cmd">make</div>
+          <div class="explain-desc">Build automation tool — reads the Makefile and executes compilation commands.</div>
+        </div>
+        <div class="explain-part">
+          <div class="explain-token token-flag">-j$(nproc)</div>
+          <div class="explain-desc">Parallel jobs. $(nproc) returns your CPU core count. So -j4 on 4-core CPU means 4 files compile simultaneously — much faster!</div>
+        </div>
+      </div>
+      <div class="explain-deep">
+        <strong>What happens:</strong> GCC compiles each <code>.c</code> source file into an object file (<code>.o</code>). Then the linker combines all object files into a single binary executable. This can take seconds to minutes depending on project size.
+      </div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <span class="terminal-title">COMPLETE SOURCE COMPILATION WORKFLOW</span>
+      <button class="copy-btn" onclick="copyCode(this,'# Download source\nwget https://example.com/tool-1.0.tar.gz\n# OR git clone\ngit clone https://github.com/user/tool.git\ncd tool\n\n# Read README for dependencies!\ncat README.md\n\n# Install build dependencies\nsudo apt install build-essential libssl-dev libcurl4-openssl-dev -y\n\n# Step 1: Configure\n./configure --prefix=/usr/local\n\n# Step 2: Compile (using all CPU cores)\nmake -j$(nproc)\n\n# Step 3: Install\nsudo make install\n\n# Verify\ntool --version\nwhich tool')">COPY</button>
+    </div>
+    <div class="terminal-body">
+      <div class="output-line"># Full source compilation example</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">wget <span class="url">https://example.com/tool-1.0.tar.gz</span></span></div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">tar <span class="flag">-xzf</span> tool-1.0.tar.gz</span></div>
+      <div class="output-line"># -x: extract, -z: gunzip, -f: from file</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">cd <span class="path">tool-1.0/</span></span></div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">cat README.md <span class="comment"># Check dependencies</span></span></div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt install <span class="arg">build-essential libssl-dev libcurl4-openssl-dev</span> <span class="flag">-y</span></span></div>
+      <div class="output-ok">Build dependencies installed</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">./configure <span class="flag">--prefix=</span><span class="path">/usr/local</span></span></div>
+      <div class="output-line">checking for gcc... yes</div>
+      <div class="output-line">checking for libssl... yes</div>
+      <div class="output-ok">Configuration complete! Run: make</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">make <span class="flag">-j$(nproc)</span></span></div>
+      <div class="output-line">gcc -O2 -Wall -c src/main.c -o build/main.o</div>
+      <div class="output-line">gcc -O2 -Wall -c src/utils.c -o build/utils.o</div>
+      <div class="output-ok">Build completed successfully</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> make install</span></div>
+      <div class="output-line">install -m 755 tool /usr/local/bin/tool</div>
+      <div class="output-ok">Installation complete</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">tool <span class="flag">--version</span></span></div>
+      <div class="output-ok">tool v1.0.0</div>
+    </div>
+  </div>
+
+  <h3>CMake-based Projects</h3>
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <span class="terminal-title">CMAKE BUILD SYSTEM</span>
+      <button class="copy-btn" onclick="copyCode(this,'git clone https://github.com/user/cmake-tool.git\ncd cmake-tool\nmkdir build && cd build\ncmake .. -DCMAKE_INSTALL_PREFIX=/usr/local\nmake -j$(nproc)\nsudo make install')">COPY</button>
+    </div>
+    <div class="terminal-body">
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">git clone <span class="url">https://github.com/user/cmake-tool.git</span></span></div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">cd <span class="path">cmake-tool</span></span></div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">mkdir build && cd build</span></div>
+      <div class="output-line"># Create build directory (keeps source clean)</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">cmake <span class="arg">..</span> <span class="flag">-DCMAKE_INSTALL_PREFIX=</span><span class="path">/usr/local</span></span></div>
+      <div class="output-line"># .. means "look in parent dir for CMakeLists.txt"</div>
+      <div class="output-ok">-- Configuring done</div>
+      <div class="output-ok">-- Build files written to: ./build/</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">make <span class="flag">-j$(nproc)</span></span></div>
+      <div class="output-ok">[ 100%] Built target cmake-tool</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> make install</span></div>
+      <div class="output-ok">-- Install complete</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ DOCKER ═══ -->
+<section id="docker" class="section">
+  <div class="section-header">
+    <span class="section-num">SECTION 08</span>
+    <span class="section-tag">// CONTAINERIZED TOOLS</span>
+    <h2 class="section-title">DOCKER</h2>
+    <p class="section-desc">Docker lets you run tools in isolated containers — like lightweight virtual machines. Perfect for tools with complex dependencies or when you want complete isolation.</p>
+  </div>
+
+  <div class="concept-box cyan">
+    <div class="concept-label">CONCEPT // DOCKER</div>
+    <div class="concept-title">What Is Docker?</div>
+    <div class="concept-text">
+      Docker is a containerization platform. A <strong>container</strong> packages a tool with its entire environment (OS files, dependencies, config) into a single portable unit.
+      <br><br>
+      Unlike virtual machines, containers share the host OS kernel — they're much lighter and faster to start. A Docker <strong>image</strong> is the template. A <strong>container</strong> is a running instance of an image.
+    </div>
+  </div>
+
+  <h3>Install Docker</h3>
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <span class="terminal-title">INSTALL DOCKER ON PARROT OS</span>
+      <button class="copy-btn" onclick="copyCode(this,'sudo apt update\nsudo apt install docker.io -y\nsudo systemctl start docker\nsudo systemctl enable docker\n# Add yourself to docker group (no sudo needed later)\nsudo usermod -aG docker $USER\n# Log out and back in, then verify:\ndocker --version\ndocker run hello-world')">COPY</button>
+    </div>
+    <div class="terminal-body">
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt install <span class="arg">docker.io</span> <span class="flag">-y</span></span></div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> systemctl start docker</span></div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> systemctl enable docker</span></div>
+      <div class="output-line"># start: run now, enable: run on boot</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> usermod <span class="flag">-aG</span> <span class="arg">docker $USER</span></span></div>
+      <div class="output-line"># Add yourself to docker group → no sudo for docker later</div>
+      <div class="output-warn">NOTE: Log out and back in for group change to take effect!</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">docker <span class="flag">--version</span></span></div>
+      <div class="output-ok">Docker version 27.0.3</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">docker run hello-world</span></div>
+      <div class="output-ok">Hello from Docker! Installation successful!</div>
+    </div>
+  </div>
+
+  <h3>Essential Docker Commands</h3>
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <span class="terminal-title">DOCKER COMMAND REFERENCE</span>
+      <button class="copy-btn" onclick="copyCode(this,'# Pull an image from Docker Hub\ndocker pull kalilinux/kali-rolling\n\n# Run a container\ndocker run -it kalilinux/kali-rolling /bin/bash\n\n# Run with network access and current dir mounted\ndocker run -it --network=host -v $(pwd):/work kalilinux/kali-rolling /bin/bash\n\n# List running containers\ndocker ps\n\n# List all containers (including stopped)\ndocker ps -a\n\n# List downloaded images\ndocker images\n\n# Stop a container\ndocker stop [container-id]\n\n# Remove a container\ndocker rm [container-id]\n\n# Remove an image\ndocker rmi [image-name]')">COPY</button>
+    </div>
+    <div class="terminal-body">
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">docker pull <span class="arg">kalilinux/kali-rolling</span></span></div>
+      <div class="output-line"># Download an image from Docker Hub</div>
+      <div class="output-ok">Pulled kalilinux/kali-rolling:latest</div>
+      <div class="cmd-line" style="margin-top:8px"><span class="prompt">$</span><span class="cmd">docker run <span class="flag">-it</span> <span class="arg">kalilinux/kali-rolling</span> /bin/bash</span></div>
+      <div class="output-line"># -i: interactive  -t: terminal  = interactive terminal session</div>
+      <div class="output-ok">root@container:/# </div>
+      <div class="cmd-line" style="margin-top:8px"><span class="prompt">$</span><span class="cmd">docker run <span class="flag">-it --network=host -v $(pwd):/work</span> <span class="arg">tool-image</span> /bin/bash</span></div>
+      <div class="output-line"># --network=host: share host network</div>
+      <div class="output-line"># -v $(pwd):/work: mount current dir to /work inside container</div>
+      <div class="cmd-line" style="margin-top:8px"><span class="prompt">$</span><span class="cmd">docker ps</span></div>
+      <div class="output-line">CONTAINER ID   IMAGE    COMMAND   STATUS    PORTS   NAMES</div>
+      <div class="output-ok">a1b2c3d4e5f6   kali     bash      Up 2min           kali1</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">docker images</span></div>
+      <div class="output-line">REPOSITORY             TAG       SIZE</div>
+      <div class="output-ok">kalilinux/kali-rolling latest    450MB</div>
+    </div>
+  </div>
+
+  <h3>Manual Tool Installation (Binary/Script)</h3>
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <span class="terminal-title">MANUAL INSTALLATION — PRE-BUILT BINARIES</span>
+      <button class="copy-btn" onclick="copyCode(this,'# Download a pre-compiled binary\nwget https://github.com/user/tool/releases/download/v1.0/tool-linux-amd64\n\n# Make it executable\nchmod +x tool-linux-amd64\n\n# Test it\n./tool-linux-amd64 --version\n\n# Install system-wide (accessible from anywhere)\nsudo mv tool-linux-amd64 /usr/local/bin/tool\n\n# Verify\ntool --version\nwhich tool')">COPY</button>
+    </div>
+    <div class="terminal-body">
+      <div class="output-line"># Download a pre-compiled binary from GitHub Releases</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">wget <span class="url">https://github.com/user/tool/releases/download/v1.0/tool-linux-amd64</span></span></div>
+      <div class="output-ok">Downloaded tool-linux-amd64</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">chmod</span> <span class="flag">+x</span> tool-linux-amd64</span></div>
+      <div class="output-line"># chmod: change mode | +x: add execute permission</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">./tool-linux-amd64 <span class="flag">--version</span></span></div>
+      <div class="output-ok">tool v1.0.0 — works!</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> mv tool-linux-amd64 <span class="path">/usr/local/bin/tool</span></span></div>
+      <div class="output-line"># mv: move file | Now accessible as 'tool' from anywhere</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">tool <span class="flag">--version</span></span></div>
+      <div class="output-ok">tool v1.0.0</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">which tool</span></div>
+      <div class="output-ok">/usr/local/bin/tool</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ ERRORS ═══ -->
+<section id="errors" class="section">
+  <div class="section-header">
+    <span class="section-num">SECTION 09</span>
+    <span class="section-tag">// TROUBLESHOOTING GUIDE</span>
+    <h2 class="section-title">ERROR TROUBLESHOOTING</h2>
+    <p class="section-desc">Every beginner will hit these errors. Here's exactly how to fix each one — with the error message, why it happens, and the step-by-step solution.</p>
+  </div>
+
+  <!-- DECISION TREE -->
+  <h3>Troubleshooting Decision Tree</h3>
+  <div class="decision-tree">
+    <div class="dt-question">Command not found after installation?</div>
+    <div>├── <span class="dt-yes">YES</span> → <span class="dt-action">Check: echo $PATH — is install dir in PATH?</span></div>
+    <div>│   ├── <span class="dt-yes">PATH missing dir</span> → <span class="dt-action">Add to ~/.bashrc, run source ~/.bashrc</span></div>
+    <div>│   └── <span class="dt-yes">PATH has dir</span> → <span class="dt-action">Check: which tool / ls /usr/bin/tool</span></div>
+    <div>└── <span class="dt-no">NO (different error)</span></div>
+    <br>
+    <div class="dt-question">Permission denied error?</div>
+    <div>├── <span class="dt-yes">Writing to /usr/ or /opt/</span> → <span class="dt-action">Add sudo before the command</span></div>
+    <div>└── <span class="dt-yes">Executing a file</span> → <span class="dt-action">chmod +x filename</span></div>
+    <br>
+    <div class="dt-question">APT dependency error?</div>
+    <div>├── <span class="dt-yes">broken packages</span> → <span class="dt-action">sudo apt-get install -f</span></div>
+    <div>├── <span class="dt-yes">outdated lists</span> → <span class="dt-action">sudo apt update first</span></div>
+    <div>└── <span class="dt-yes">held packages</span> → <span class="dt-action">sudo apt full-upgrade</span></div>
+    <br>
+    <div class="dt-question">pip install fails?</div>
+    <div>├── <span class="dt-yes">externally-managed-environment error</span> → <span class="dt-action">Use pipx or --break-system-packages</span></div>
+    <div>├── <span class="dt-yes">permission denied</span> → <span class="dt-action">pip3 install --user [package]</span></div>
+    <div>└── <span class="dt-yes">SSL error</span> → <span class="dt-action">pip3 install --trusted-host pypi.org [package]</span></div>
+  </div>
+
+  <!-- ERRORS LIST -->
+  <div class="error-block" onclick="toggleError(this)">
+    <div class="error-header">
+      <div class="error-icon">!</div>
+      <div class="error-title">E: Unable to locate package [name]</div>
+    </div>
+    <div class="error-body">
+      <div class="error-msg">E: Unable to locate package metasploit-framework</div>
+      <p style="color:#88aa88; margin-bottom:14px"><strong>Why it happens:</strong> The package name doesn't exist in your current repositories OR your package lists are outdated.</p>
+      <div class="solution-step"><div class="step-num">1</div><div class="step-text">Update package lists first: <code>sudo apt update</code></div></div>
+      <div class="solution-step"><div class="step-num">2</div><div class="step-text">Double-check the exact package name: <code>apt search metasploit</code></div></div>
+      <div class="solution-step"><div class="step-num">3</div><div class="step-text">If the package exists in search results, try again with the exact name shown.</div></div>
+      <div class="solution-step"><div class="step-num">4</div><div class="step-text">If not found anywhere, the package may need a separate repository. Check the tool's official documentation for APT repo instructions.</div></div>
+      <div class="solution-step"><div class="step-num">5</div><div class="step-text">Enable Parrot OS security repo: check <code>/etc/apt/sources.list</code> for parrot-security entries.</div></div>
+      <div class="terminal" style="margin-top:12px">
+        <div class="terminal-header"><div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div><span class="terminal-title">FIX</span><button class="copy-btn" onclick="event.stopPropagation();copyCode(this,'sudo apt update\napt search metasploit\nsudo apt install metasploit-framework -y')">COPY</button></div>
+        <div class="terminal-body">
+          <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt update</span></div>
+          <div class="cmd-line"><span class="prompt">$</span><span class="cmd">apt search <span class="arg">metasploit</span></span></div>
+          <div class="output-ok">metasploit-framework/parrot-security ...</div>
+          <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt install <span class="arg">metasploit-framework</span> <span class="flag">-y</span></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="error-block" onclick="toggleError(this)">
+    <div class="error-header">
+      <div class="error-icon">!</div>
+      <div class="error-title">Permission Denied</div>
+    </div>
+    <div class="error-body">
+      <div class="error-msg">bash: /usr/bin/tool: Permission denied<br>or: mkdir: cannot create directory '/opt/tool': Permission denied</div>
+      <p style="color:#88aa88; margin-bottom:14px"><strong>Why it happens:</strong> You're trying to write to a protected system directory without root privileges, OR a file isn't marked as executable.</p>
+      <div class="solution-step"><div class="step-num">1</div><div class="step-text">For installation commands: add <code>sudo</code> to the front of the command</div></div>
+      <div class="solution-step"><div class="step-num">2</div><div class="step-text">For executing a file: <code>chmod +x filename</code> then <code>./filename</code></div></div>
+      <div class="solution-step"><div class="step-num">3</div><div class="step-text">Check file permissions: <code>ls -la filename</code> — look for 'x' in permissions</div></div>
+      <div class="terminal" style="margin-top:12px">
+        <div class="terminal-header"><div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div><span class="terminal-title">FIX</span><button class="copy-btn" onclick="event.stopPropagation();copyCode(this,'ls -la tool.sh\nchmod +x tool.sh\n./tool.sh\n# Or with sudo:\nsudo ./install.sh')">COPY</button></div>
+        <div class="terminal-body">
+          <div class="cmd-line"><span class="prompt">$</span><span class="cmd">ls <span class="flag">-la</span> tool.sh</span></div>
+          <div class="output-err">-rw-r--r-- 1 parrot parrot 1234 tool.sh</div>
+          <div class="output-line"># No 'x' in permissions — not executable!</div>
+          <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">chmod</span> <span class="flag">+x</span> tool.sh</span></div>
+          <div class="cmd-line"><span class="prompt">$</span><span class="cmd">ls <span class="flag">-la</span> tool.sh</span></div>
+          <div class="output-ok">-rwxr-xr-x 1 parrot parrot 1234 tool.sh</div>
+          <div class="output-ok"># Now has 'x' — executable!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="error-block" onclick="toggleError(this)">
+    <div class="error-header">
+      <div class="error-icon">!</div>
+      <div class="error-title">externally-managed-environment (pip Error)</div>
+    </div>
+    <div class="error-body">
+      <div class="error-msg">error: externally-managed-environment<br>× This environment is externally managed<br>╰─> To install Python packages system-wide, try apt install python3-xyz</div>
+      <p style="color:#88aa88; margin-bottom:14px"><strong>Why it happens:</strong> Parrot OS (Debian-based) implements PEP 668 — it protects the system Python from having packages installed directly with pip3. This prevents pip from breaking APT-managed Python packages.</p>
+      <div class="solution-step"><div class="step-num">1</div><div class="step-text">Best solution: Install with <code>pipx</code> (if it's a CLI tool): <code>pipx install package-name</code></div></div>
+      <div class="solution-step"><div class="step-num">2</div><div class="step-text">Use a virtual environment: <code>python3 -m venv myenv && source myenv/bin/activate && pip3 install package</code></div></div>
+      <div class="solution-step"><div class="step-num">3</div><div class="step-text">If you must install system-wide (advanced): <code>pip3 install package --break-system-packages</code></div></div>
+      <div class="solution-step"><div class="step-num">4</div><div class="step-text">Try installing from APT: <code>sudo apt install python3-packagename</code></div></div>
+    </div>
+  </div>
+
+  <div class="error-block" onclick="toggleError(this)">
+    <div class="error-header">
+      <div class="error-icon">!</div>
+      <div class="error-title">command not found (after installation)</div>
+    </div>
+    <div class="error-body">
+      <div class="error-msg">bash: gobuster: command not found<br>bash: ffuf: command not found</div>
+      <p style="color:#88aa88; margin-bottom:14px"><strong>Why it happens:</strong> The tool was installed to a directory not in your $PATH, or you need to reload your shell configuration.</p>
+      <div class="solution-step"><div class="step-num">1</div><div class="step-text">Reload your shell: <code>source ~/.bashrc</code></div></div>
+      <div class="solution-step"><div class="step-num">2</div><div class="step-text">Check PATH: <code>echo $PATH</code> — make sure the install directory is listed</div></div>
+      <div class="solution-step"><div class="step-num">3</div><div class="step-text">Find where it was installed: <code>find / -name gobuster 2>/dev/null</code></div></div>
+      <div class="solution-step"><div class="step-num">4</div><div class="step-text">Add install dir to PATH: <code>echo 'export PATH=$PATH:~/go/bin' >> ~/.bashrc && source ~/.bashrc</code></div></div>
+      <div class="terminal" style="margin-top:12px">
+        <div class="terminal-header"><div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div><span class="terminal-title">DIAGNOSE AND FIX</span><button class="copy-btn" onclick="event.stopPropagation();copyCode(this,'echo $PATH\nfind / -name gobuster 2>/dev/null\necho \'export PATH=$PATH:~/go/bin\' >> ~/.bashrc\nsource ~/.bashrc\ngobuster --help')">COPY</button></div>
+        <div class="terminal-body">
+          <div class="cmd-line"><span class="prompt">$</span><span class="cmd">echo <span class="arg">$PATH</span></span></div>
+          <div class="output-line">/usr/bin:/usr/sbin:/bin  <span style="color:var(--red)">← ~/go/bin missing!</span></div>
+          <div class="cmd-line"><span class="prompt">$</span><span class="cmd">find <span class="arg">/</span> <span class="flag">-name</span> gobuster <span class="arg">2>/dev/null</span></span></div>
+          <div class="output-ok">/home/parrot/go/bin/gobuster</div>
+          <div class="cmd-line"><span class="prompt">$</span><span class="cmd">echo <span class="arg">'export PATH=$PATH:~/go/bin'</span> >> <span class="path">~/.bashrc</span></span></div>
+          <div class="cmd-line"><span class="prompt">$</span><span class="cmd">source <span class="path">~/.bashrc</span></span></div>
+          <div class="cmd-line"><span class="prompt">$</span><span class="cmd">gobuster <span class="flag">--help</span></span></div>
+          <div class="output-ok"># Works now!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="error-block" onclick="toggleError(this)">
+    <div class="error-header">
+      <div class="error-icon">!</div>
+      <div class="error-title">Broken Packages / dpkg errors</div>
+    </div>
+    <div class="error-body">
+      <div class="error-msg">dpkg: error processing package [name] (--install):<br> subprocess installed post-installation script returned error exit status 1<br>E: Sub-process /usr/bin/dpkg returned an error code (1)</div>
+      <p style="color:#88aa88; margin-bottom:14px"><strong>Why it happens:</strong> A previous installation was interrupted, leaving the package database in an inconsistent state.</p>
+      <div class="solution-step"><div class="step-num">1</div><div class="step-text">Fix broken packages: <code>sudo apt-get install -f</code></div></div>
+      <div class="solution-step"><div class="step-num">2</div><div class="step-text">Reconfigure packages: <code>sudo dpkg --configure -a</code></div></div>
+      <div class="solution-step"><div class="step-num">3</div><div class="step-text">Clean apt cache: <code>sudo apt clean && sudo apt update</code></div></div>
+      <div class="solution-step"><div class="step-num">4</div><div class="step-text">Force remove broken package: <code>sudo dpkg --remove --force-all [package-name]</code></div></div>
+      <div class="terminal" style="margin-top:12px">
+        <div class="terminal-header"><div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div><span class="terminal-title">FIX BROKEN PACKAGES</span><button class="copy-btn" onclick="event.stopPropagation();copyCode(this,'sudo dpkg --configure -a\nsudo apt-get install -f\nsudo apt clean\nsudo apt update\nsudo apt upgrade -y')">COPY</button></div>
+        <div class="terminal-body">
+          <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> dpkg <span class="flag">--configure -a</span></span></div>
+          <div class="output-line"># Re-run config for all partially installed packages</div>
+          <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt-get install <span class="flag">-f</span></span></div>
+          <div class="output-line"># -f = --fix-broken : fix dependency issues</div>
+          <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt clean</span></div>
+          <div class="output-line"># Remove cached .deb files from /var/cache/apt/archives/</div>
+          <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt update && <span class="kw">sudo</span> apt upgrade <span class="flag">-y</span></span></div>
+          <div class="output-ok">System clean and updated</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="error-block" onclick="toggleError(this)">
+    <div class="error-header">
+      <div class="error-icon">!</div>
+      <div class="error-title">git clone: SSL certificate / network error</div>
+    </div>
+    <div class="error-body">
+      <div class="error-msg">fatal: unable to access 'https://github.com/...': SSL_ERROR_RX_RECORD_TOO_LONG<br>or: fatal: repository not found</div>
+      <p style="color:#88aa88; margin-bottom:14px"><strong>Why it happens:</strong> Network connectivity issue, SSL certificate problem, or wrong repository URL.</p>
+      <div class="solution-step"><div class="step-num">1</div><div class="step-text">Check internet: <code>ping github.com</code></div></div>
+      <div class="solution-step"><div class="step-num">2</div><div class="step-text">Verify the URL is correct — copy it directly from GitHub</div></div>
+      <div class="solution-step"><div class="step-num">3</div><div class="step-text">Update CA certificates: <code>sudo apt install ca-certificates -y && sudo update-ca-certificates</code></div></div>
+      <div class="solution-step"><div class="step-num">4</div><div class="step-text">Try with https vs http, or with .git vs without</div></div>
+    </div>
+  </div>
+
+  <div class="error-block" onclick="toggleError(this)">
+    <div class="error-header">
+      <div class="error-icon">!</div>
+      <div class="error-title">Missing library / .so file error</div>
+    </div>
+    <div class="error-body">
+      <div class="error-msg">error while loading shared libraries: libssl.so.1.1: cannot open shared object file</div>
+      <p style="color:#88aa88; margin-bottom:14px"><strong>Why it happens:</strong> A required shared library (.so file) is not installed on your system. The tool was compiled against a library version you don't have.</p>
+      <div class="solution-step"><div class="step-num">1</div><div class="step-text">Search for the package providing the library: <code>apt-file search libssl.so.1.1</code> (install apt-file first: <code>sudo apt install apt-file && sudo apt-file update</code>)</div></div>
+      <div class="solution-step"><div class="step-num">2</div><div class="step-text">Try installing the dev package: <code>sudo apt install libssl-dev -y</code></div></div>
+      <div class="solution-step"><div class="step-num">3</div><div class="step-text">Run <code>ldconfig</code> after installing: <code>sudo ldconfig</code></div></div>
+    </div>
+  </div>
+
+  <div class="error-block" onclick="toggleError(this)">
+    <div class="error-header">
+      <div class="error-icon">!</div>
+      <div class="error-title">Go: go: command not found</div>
+    </div>
+    <div class="error-body">
+      <div class="error-msg">bash: go: command not found<br>go install: go binary not in PATH</div>
+      <p style="color:#88aa88; margin-bottom:14px"><strong>Why it happens:</strong> Go is not installed, or the Go binary directory is not in your PATH.</p>
+      <div class="solution-step"><div class="step-num">1</div><div class="step-text">Install Go: <code>sudo apt install golang-go -y</code></div></div>
+      <div class="solution-step"><div class="step-num">2</div><div class="step-text">Add to PATH: <code>echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc && source ~/.bashrc</code></div></div>
+      <div class="solution-step"><div class="step-num">3</div><div class="step-text">Verify: <code>go version</code></div></div>
+    </div>
+  </div>
+
+  <div class="error-block" onclick="toggleError(this)">
+    <div class="error-header">
+      <div class="error-icon">!</div>
+      <div class="error-title">sudo: command not found</div>
+    </div>
+    <div class="error-body">
+      <div class="error-msg">bash: sudo: command not found</div>
+      <p style="color:#88aa88; margin-bottom:14px"><strong>Why it happens:</strong> Rare on Parrot OS, but can happen if using a minimal install. sudo is not installed.</p>
+      <div class="solution-step"><div class="step-num">1</div><div class="step-text">Log in as root: <code>su -</code> then enter root password</div></div>
+      <div class="solution-step"><div class="step-num">2</div><div class="step-text">Install sudo: <code>apt install sudo -y</code></div></div>
+      <div class="solution-step"><div class="step-num">3</div><div class="step-text">Add your user to sudo group: <code>usermod -aG sudo yourusername</code></div></div>
+      <div class="solution-step"><div class="step-num">4</div><div class="step-text">Log out and back in</div></div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ═══ TOOL MANAGEMENT ═══ -->
+<section id="management" class="section">
+  <div class="section-header">
+    <span class="section-num">SECTION 10</span>
+    <span class="section-tag">// MAINTAIN YOUR ARSENAL</span>
+    <h2 class="section-title">TOOL MANAGEMENT</h2>
+    <p class="section-desc">Installing is only half the job. Keeping tools updated, removing unneeded ones, and troubleshooting broken tools are equally important skills.</p>
+  </div>
+
+  <h3>Updating Everything</h3>
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <span class="terminal-title">SYSTEM-WIDE UPDATE COMMAND (RUN WEEKLY)</span>
+      <button class="copy-btn" onclick="copyCode(this,'sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y && sudo apt autoclean')">COPY</button>
+    </div>
+    <div class="terminal-body">
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt update && <span class="kw">sudo</span> apt upgrade <span class="flag">-y</span> && <span class="kw">sudo</span> apt autoremove <span class="flag">-y</span> && <span class="kw">sudo</span> apt autoclean</span></div>
+      <div class="output-line"># This one-liner does everything:</div>
+      <div class="output-line"># apt update       → refresh package lists</div>
+      <div class="output-line"># apt upgrade       → upgrade all installed packages</div>
+      <div class="output-line"># apt autoremove    → remove unused dependencies</div>
+      <div class="output-line"># apt autoclean     → remove old downloaded .deb files</div>
+      <div class="output-ok">System fully updated!</div>
+    </div>
+  </div>
+
+  <h3>Update Tools By Method</h3>
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <span class="terminal-title">UPDATE COMMANDS BY INSTALL METHOD</span>
+      <button class="copy-btn" onclick="copyCode(this,'# APT tools\nsudo apt update && sudo apt upgrade -y\n\n# GitHub tools (go to tool directory)\ncd /opt/toolname && sudo git pull\n\n# pip tools\npip3 install --upgrade toolname\n\n# pipx tools\npipx upgrade-all\n\n# Go tools (reinstall with @latest)\ngo install github.com/user/tool@latest\n\n# Snap\nsudo snap refresh\n\n# Flatpak\nflatpak update')">COPY</button>
+    </div>
+    <div class="terminal-body">
+      <div class="output-line"># === UPDATE BY INSTALL METHOD ===</div>
+      <div class="cmd-line" style="margin-top:8px"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt update && <span class="kw">sudo</span> apt upgrade <span class="flag">-y</span></span></div>
+      <div class="output-line"># → APT tools</div>
+      <div class="cmd-line" style="margin-top:6px"><span class="prompt">$</span><span class="cmd">cd <span class="path">/opt/toolname</span> && <span class="kw">sudo</span> git pull</span></div>
+      <div class="output-line"># → GitHub-cloned tools</div>
+      <div class="cmd-line" style="margin-top:6px"><span class="prompt">$</span><span class="cmd">pip3 install <span class="flag">--upgrade</span> <span class="arg">toolname</span></span></div>
+      <div class="output-line"># → pip tools</div>
+      <div class="cmd-line" style="margin-top:6px"><span class="prompt">$</span><span class="cmd">pipx upgrade-all</span></div>
+      <div class="output-line"># → ALL pipx tools at once</div>
+      <div class="cmd-line" style="margin-top:6px"><span class="prompt">$</span><span class="cmd">go install <span class="arg">github.com/user/tool</span><span class="flag">@latest</span></span></div>
+      <div class="output-line"># → Go tools (reinstalls with latest)</div>
+      <div class="cmd-line" style="margin-top:6px"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> snap refresh</span></div>
+      <div class="output-line"># → ALL snap packages</div>
+      <div class="cmd-line" style="margin-top:6px"><span class="prompt">$</span><span class="cmd">flatpak update</span></div>
+      <div class="output-line"># → ALL flatpak apps</div>
+    </div>
+  </div>
+
+  <h3>Removing Tools</h3>
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <span class="terminal-title">REMOVE TOOLS BY METHOD</span>
+      <button class="copy-btn" onclick="copyCode(this,'# APT — remove (keep config)\nsudo apt remove toolname\n\n# APT — purge (remove + config files)\nsudo apt purge toolname\nsudo apt autoremove\n\n# GitHub — just delete the directory\nsudo rm -rf /opt/toolname\n\n# pip\npip3 uninstall toolname\n\n# pipx\npipx uninstall toolname\n\n# Go binary\nrm ~/go/bin/toolname\n\n# Snap\nsudo snap remove toolname\n\n# Flatpak\nflatpak uninstall app.id.here\n\n# Manual binary\nsudo rm /usr/local/bin/toolname')">COPY</button>
+    </div>
+    <div class="terminal-body">
+      <div class="output-line"># === REMOVE BY INSTALL METHOD ===</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt remove <span class="arg">nmap</span></span></div>
+      <div class="output-line"># APT remove — keeps config files</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> apt purge <span class="arg">nmap</span> && <span class="kw">sudo</span> apt autoremove</span></div>
+      <div class="output-line"># APT purge — removes EVERYTHING including config</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> rm <span class="flag">-rf</span> <span class="path">/opt/toolname</span></span></div>
+      <div class="output-line"># GitHub tool — delete the cloned directory</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">pip3 uninstall <span class="arg">toolname</span></span></div>
+      <div class="output-line"># pip tool</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">pipx uninstall <span class="arg">toolname</span></span></div>
+      <div class="output-line"># pipx tool</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">rm <span class="path">~/go/bin/toolname</span></span></div>
+      <div class="output-line"># Go tool — delete binary</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> snap remove <span class="arg">toolname</span></span></div>
+      <div class="output-line"># Snap</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd"><span class="kw">sudo</span> rm <span class="path">/usr/local/bin/toolname</span></span></div>
+      <div class="output-line"># Manually installed binary</div>
+    </div>
+  </div>
+
+  <h3>Quick Diagnostics</h3>
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <span class="terminal-title">DIAGNOSTIC COMMANDS</span>
+      <button class="copy-btn" onclick="copyCode(this,'# Find where a tool is installed\nwhich nmap\nwhereis nmap\n\n# Check if a tool is installed\ndpkg -l nmap\ncommand -v nmap\n\n# List all installed APT packages\ndpkg --get-selections | grep -v deinstall\napt list --installed 2>/dev/null\n\n# Check disk space used by tool\ndu -sh /usr/share/nmap\ndpkg-query -Wf "${Installed-Size}\\t${Package}\\n" | sort -n\n\n# View package contents\ndpkg -L nmap\n\n# Check tool version\nnmap --version\n\n# Check PATH\necho $PATH | tr \':\' \'\\n\'')">COPY</button>
+    </div>
+    <div class="terminal-body">
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">which <span class="arg">nmap</span></span></div>
+      <div class="output-ok">/usr/bin/nmap</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">whereis <span class="arg">nmap</span></span></div>
+      <div class="output-ok">nmap: /usr/bin/nmap /usr/share/man/man1/nmap.1.gz</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">dpkg <span class="flag">-l</span> <span class="arg">nmap</span></span></div>
+      <div class="output-ok">ii  nmap  7.95  amd64  The Network Mapper</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">dpkg <span class="flag">-L</span> <span class="arg">nmap</span></span></div>
+      <div class="output-line">/usr/bin/nmap</div>
+      <div class="output-line">/usr/share/nmap/nmap-services</div>
+      <div class="output-line">/usr/share/man/man1/nmap.1.gz</div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd">echo <span class="arg">$PATH</span> | tr ':' '\n'</span></div>
+      <div class="output-ok">/usr/bin</div>
+      <div class="output-ok">/usr/sbin</div>
+      <div class="output-ok">/usr/local/bin</div>
+      <div class="output-ok">/home/parrot/go/bin</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ INTERACTIVE TERMINAL ═══ -->
+<section id="terminal-lab" class="section">
+  <div class="section-header">
+    <span class="section-num">BONUS</span>
+    <span class="section-tag">// PRACTICE LAB</span>
+    <h2 class="section-title">INTERACTIVE TERMINAL</h2>
+    <p class="section-desc">Practice commands in this simulated terminal. Type commands and see responses. Not a real system — a safe sandbox to get familiar with the interface.</p>
+  </div>
+
+  <div id="terminal-sim">
+    <div class="terminal-header">
+      <div class="terminal-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <span class="terminal-title">⬡ PARROT OS TERMINAL SIMULATOR</span>
+    </div>
+    <div id="sim-output"></div>
+    <div id="sim-input-line">
+      <span id="sim-prompt-display">parrot@parrot:~$</span>
+      <input type="text" id="sim-input" placeholder="type a command..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    </div>
+    <div class="sim-hint">
+      Try: sudo apt update | sudo apt install nmap | nmap --version | apt search metasploit | pip3 install scapy | go version | whoami | pwd | ls | help | clear
+    </div>
+  </div>
+
+  <h3>Beginner Mistakes Checklist</h3>
+  <div class="concept-box red">
+    <div class="concept-label">AVOID THESE COMMON MISTAKES</div>
+    <div class="concept-title">Top Beginner Errors to Avoid</div>
+    <div class="concept-text">
+      <strong>1.</strong> Skipping <code>sudo apt update</code> before installing → outdated packages, errors<br>
+      <strong>2.</strong> Not reading README.md before installing from GitHub → missing dependencies<br>
+      <strong>3.</strong> Using pip3 system-wide on modern Parrot OS → externally-managed error<br>
+      <strong>4.</strong> Forgetting to add GOPATH to PATH → Go tools not found<br>
+      <strong>5.</strong> Forgetting <code>source ~/.bashrc</code> after modifying PATH → changes not applied<br>
+      <strong>6.</strong> Using root user for everything → security risk, breaks permissions<br>
+      <strong>7.</strong> Ignoring error messages → they contain the exact fix<br>
+      <strong>8.</strong> Not checking <code>which tool</code> after install → where did it go?<br>
+      <strong>9.</strong> Running <code>rm -rf</code> without thinking → unrecoverable deletion<br>
+      <strong>10.</strong> Installing with wrong architecture (arm64 vs amd64) → binary won't run
+    </div>
+  </div>
+
+  <h3>Professional Hacker Tips</h3>
+  <div class="grid-2">
+    <div class="tip-block">
+      <div class="tip-icon">🎯</div>
+      <div class="tip-content"><strong>Always check APT first.</strong> If a tool is in Parrot's repos, use APT. It handles updates, dependencies, and removal automatically.</div>
+    </div>
+    <div class="tip-block">
+      <div class="tip-icon">📁</div>
+      <div class="tip-content"><strong>Install custom tools in /opt/.</strong> This keeps your system organized. Use <code>/opt/toolname/</code> for GitHub clones and third-party software.</div>
+    </div>
+    <div class="tip-block">
+      <div class="tip-icon">⚡</div>
+      <div class="tip-content"><strong>Use aliases.</strong> Create short aliases in <code>~/.bashrc</code> for long commands: <code>alias update='sudo apt update && sudo apt upgrade -y'</code></div>
+    </div>
+    <div class="tip-block">
+      <div class="tip-icon">🔒</div>
+      <div class="tip-content"><strong>Verify downloads.</strong> Before installing downloaded binaries, check SHA256 checksums: <code>sha256sum file.tar.gz</code> — compare with official hash.</div>
+    </div>
+    <div class="tip-block">
+      <div class="tip-icon">📝</div>
+      <div class="tip-content"><strong>Keep a tools log.</strong> Maintain a text file listing all custom-installed tools, their installation method, and location. Saves huge time later.</div>
+    </div>
+    <div class="tip-block">
+      <div class="tip-icon">🐋</div>
+      <div class="tip-content"><strong>Use Docker for noisy tools.</strong> Tools that require many conflicting dependencies work perfectly in Docker containers — isolated and clean.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ MASTERY CHECKLIST ═══ -->
+<section id="checklist" class="section">
+  <div class="section-header">
+    <span class="section-num">SECTION 11</span>
+    <span class="section-tag">// TRACK YOUR PROGRESS</span>
+    <h2 class="section-title">MASTERY CHECKLIST</h2>
+    <p class="section-desc">Click each item as you master it. When all boxes are checked, you have complete mastery of tool installation on Parrot OS.</p>
+  </div>
+
+  <h3>Linux Fundamentals</h3>
+  <div class="checklist">
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I understand what sudo is and when to use it</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I know the Linux directory structure (/usr/bin, /etc, /opt, ~)</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I understand what $PATH is and how to modify it</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I know what a package manager, repository, and dependency are</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I can navigate directories with cd, ls, pwd</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I understand chmod and file permissions</div></div>
+  </div>
+
+  <h3>APT Mastery</h3>
+  <div class="checklist">
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I can run sudo apt update before installing</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I can search for packages with apt search</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I can install tools with sudo apt install -y</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I can remove tools with apt remove and apt purge</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I can fix broken packages with apt-get install -f</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I have successfully installed nmap or another tool via APT</div></div>
+  </div>
+
+  <h3>GitHub Installation</h3>
+  <div class="checklist">
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I can git clone a repository</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I always read README.md before installing</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I can install dependencies from requirements.txt</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I can use git pull to update GitHub tools</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I know to install custom tools in /opt/</div></div>
+  </div>
+
+  <h3>Python / pip / pipx</h3>
+  <div class="checklist">
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I understand the difference between pip3 and pipx</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I can create and activate a Python virtual environment</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I know how to fix the externally-managed-environment error</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I have installed pipx and used pipx ensurepath</div></div>
+  </div>
+
+  <h3>Go Tools</h3>
+  <div class="checklist">
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I have installed Go on my system</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I have added ~/go/bin to my PATH</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I can install Go tools with go install @latest</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I have successfully installed ffuf or nuclei</div></div>
+  </div>
+
+  <h3>Advanced Methods</h3>
+  <div class="checklist">
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I understand the ./configure → make → make install pipeline</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I have installed Docker and can run containers</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I can install snap and flatpak packages</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I can install a pre-built binary and make it executable</div></div>
+  </div>
+
+  <h3>Troubleshooting</h3>
+  <div class="checklist">
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I can fix "command not found" by checking $PATH</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I can fix "Permission denied" with sudo or chmod +x</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I can fix broken packages with dpkg --configure -a</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I know how to find where a tool is installed with which/whereis</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">I can update all tools across all installation methods</div></div>
+  </div>
+
+  <div id="mastery-msg" style="display:none; text-align:center; padding:40px; margin-top:24px; border:2px solid var(--green); background:rgba(0,255,65,0.05); border-radius:4px;">
+    <div style="font-family:var(--font-display); font-size:2.5rem; color:var(--green); text-shadow:var(--green-glow); letter-spacing:4px; animation:pulse-glow 2s infinite;">
+      ⬡ MASTERY ACHIEVED ⬡
+    </div>
+    <div style="font-family:var(--font-mono); color:var(--cyan); margin-top:16px; letter-spacing:2px;">
+      YOU CAN NOW INSTALL ANY TOOL ON PARROT OS
+    </div>
+  </div>
+</section>
+
+</div><!-- /.page-wrapper -->
+
+<!-- FOOTER -->
+<footer>
+  <div class="page-wrapper">
+    <div class="footer-logo">⬡ PARROT OS GUIDE</div>
+    <div class="footer-text">// TOOL INSTALLATION MASTERY — COMPLETE GUIDE //<br>Built for cybersecurity beginners. Learn, practice, dominate.</div>
+  </div>
+</footer>
+
+<!-- ════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════ -->
+<script>
+// ═══════════════════════
+// MATRIX RAIN
+// ═══════════════════════
+(function() {
+  const canvas = document.getElementById('matrix-canvas');
+  const ctx = canvas.getContext('2d');
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%^&*()_+-=[]{}|;:<>?/\\~`ｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ01'.split('');
+  const fontSize = 14;
+  let columns = Math.floor(canvas.width / fontSize);
+  let drops = Array(columns).fill(1);
+
+  function draw() {
+    ctx.fillStyle = 'rgba(0, 5, 0, 0.04)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.font = `${fontSize}px Share Tech Mono`;
+    columns = Math.floor(canvas.width / fontSize);
+    while (drops.length < columns) drops.push(Math.random() * -100);
+
+    for (let i = 0; i < columns; i++) {
+      const char = chars[Math.floor(Math.random() * chars.length)];
+      const brightness = Math.random();
+      if (brightness > 0.95) ctx.fillStyle = '#ffffff';
+      else if (brightness > 0.8) ctx.fillStyle = '#00ff41';
+      else ctx.fillStyle = '#008822';
+      ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+      if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+  }
+
+  setInterval(draw, 40);
+})();
+
+// ═══════════════════════
+// BOOT SEQUENCE
+// ═══════════════════════
+const bootLines = [
+  { text: '[  OK  ] Initializing Parrot OS kernel...', cls: 'boot-ok', delay: 200 },
+  { text: '[  OK  ] Loading security modules...', cls: 'boot-ok', delay: 400 },
+  { text: '[ LOAD ] Mounting encrypted filesystem...', cls: 'boot-load', delay: 700 },
+  { text: '[  OK  ] Network interfaces detected...', cls: 'boot-ok', delay: 1000 },
+  { text: '[ LOAD ] Loading tool installation guide...', cls: 'boot-load', delay: 1300 },
+  { text: '[  OK  ] All systems nominal', cls: 'boot-ok', delay: 1800 },
+  { text: '[ WARN ] Beginner mode detected — guide enabled', cls: 'boot-warn', delay: 2200 },
+  { text: '[  OK  ] Ready.', cls: 'boot-ok', delay: 2800 },
+];
+
+const bootSeq = document.getElementById('boot-seq');
+bootLines.forEach(line => {
+  setTimeout(() => {
+    const el = document.createElement('div');
+    el.className = `boot-line ${line.cls}`;
+    el.textContent = line.text;
+    bootSeq.appendChild(el);
+  }, line.delay);
+});
+
+function enterSite() {
+  document.getElementById('intro-screen').classList.add('hidden');
+}
+
+// ═══════════════════════
+// EXPAND/COLLAPSE
+// ═══════════════════════
+function toggleExplain(id) {
+  const box = document.getElementById(id);
+  const header = box.querySelector('.cmd-explain-header');
+  const body = box.querySelector('.cmd-explain-body');
+  const icon = box.querySelector('.expand-icon');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  header.classList.toggle('expanded', !isOpen);
+  icon.textContent = isOpen ? '▼ CLICK TO EXPLAIN EACH PART' : '▲ COLLAPSE';
+}
+
+function toggleError(block) {
+  const body = block.querySelector('.error-body');
+  body.classList.toggle('visible');
+}
+
+// ═══════════════════════
+// TABS
+// ═══════════════════════
+function switchTab(tabsId, panelId, btn) {
+  const tabsContainer = document.getElementById(tabsId);
+  const allPanels = tabsContainer.parentElement.querySelectorAll('.method-panel');
+  const allTabs = tabsContainer.querySelectorAll('.method-tab');
+
+  allTabs.forEach(t => t.classList.remove('active'));
+  allPanels.forEach(p => p.classList.remove('active'));
+
+  btn.classList.add('active');
+  const panel = document.getElementById(panelId);
+  if (panel) panel.classList.add('active');
+}
+
+// ═══════════════════════
+// COPY BUTTONS
+// ═══════════════════════
+function copyCode(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✓ COPIED';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = orig;
+      btn.classList.remove('copied');
+    }, 2000);
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent = '✓ COPIED';
+    setTimeout(() => btn.textContent = 'COPY', 2000);
+  });
+}
+
+// ═══════════════════════
+// CHECKLIST
+// ═══════════════════════
+function toggleCheck(item) {
+  item.classList.toggle('checked');
+  checkMastery();
+}
+
+function checkMastery() {
+  const all = document.querySelectorAll('.check-item');
+  const checked = document.querySelectorAll('.check-item.checked');
+  if (all.length === checked.length && all.length > 0) {
+    document.getElementById('mastery-msg').style.display = 'block';
+  } else {
+    document.getElementById('mastery-msg').style.display = 'none';
+  }
+}
+
+// ═══════════════════════
+// TERMINAL SIMULATOR
+// ═══════════════════════
+const simCommands = {
+  'help': [
+    { type: 'ok', text: '=== PARROT OS TERMINAL SIMULATOR ===' },
+    { type: 'out', text: 'Available commands for practice:' },
+    { type: 'ok', text: 'sudo apt update         — refresh package lists' },
+    { type: 'ok', text: 'sudo apt upgrade -y     — upgrade all packages' },
+    { type: 'ok', text: 'sudo apt install nmap   — install nmap' },
+    { type: 'ok', text: 'sudo apt install [pkg]  — install any package' },
+    { type: 'ok', text: 'apt search [term]       — search packages' },
+    { type: 'ok', text: 'apt show nmap           — show package info' },
+    { type: 'ok', text: 'nmap --version          — show nmap version' },
+    { type: 'ok', text: 'pip3 install scapy      — install python package' },
+    { type: 'ok', text: 'go version              — show Go version' },
+    { type: 'ok', text: 'go install ffuf@latest  — install Go tool' },
+    { type: 'ok', text: 'git clone [url]         — clone a repo' },
+    { type: 'ok', text: 'which [cmd]             — find where command is' },
+    { type: 'ok', text: 'echo $PATH              — show PATH variable' },
+    { type: 'ok', text: 'whoami                  — show current user' },
+    { type: 'ok', text: 'pwd                     — print working directory' },
+    { type: 'ok', text: 'ls                      — list files' },
+    { type: 'ok', text: 'clear                   — clear terminal' },
+  ],
+  'whoami': [{ type: 'ok', text: 'parrot' }],
+  'pwd': [{ type: 'ok', text: '/home/parrot' }],
+  'ls': [{ type: 'ok', text: 'Desktop  Documents  Downloads  Music  Pictures  Public  Videos  tools' }],
+  'clear': '__clear__',
+  'sudo apt update': [
+    { type: 'out', text: '[sudo] password for parrot: ········' },
+    { type: 'out', text: 'Hit:1 https://deb.parrot.sh/parrot rolling InRelease' },
+    { type: 'out', text: 'Get:2 https://deb.parrot.sh/parrot rolling/main amd64 Packages [8,524 kB]' },
+    { type: 'out', text: 'Fetched 8,524 kB in 3s (2,841 kB/s)' },
+    { type: 'out', text: 'Reading package lists... Done' },
+    { type: 'ok', text: 'Building dependency tree... Done' },
+    { type: 'ok', text: 'All packages are up to date.' },
+  ],
+  'sudo apt upgrade -y': [
+    { type: 'out', text: 'Reading package lists... Done' },
+    { type: 'out', text: 'Building dependency tree... Done' },
+    { type: 'ok', text: '0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.' },
+  ],
+  'sudo apt install nmap': [
+    { type: 'out', text: 'Reading package lists... Done' },
+    { type: 'out', text: 'Building dependency tree... Done' },
+    { type: 'out', text: 'The following NEW packages will be installed: nmap' },
+    { type: 'out', text: 'Need to get 5,812 kB of archives.' },
+    { type: 'out', text: 'Get:1 https://deb.parrot.sh nmap_7.95_amd64.deb [5,812 kB]' },
+    { type: 'out', text: 'Fetched 5,812 kB in 2s' },
+    { type: 'out', text: 'Selecting previously unselected package nmap.' },
+    { type: 'out', text: 'dpkg: unpacking nmap ...' },
+    { type: 'ok', text: 'Setting up nmap (7.95) ...' },
+    { type: 'ok', text: 'Processing triggers for man-db ...' },
+  ],
+  'sudo apt install nmap -y': [
+    { type: 'out', text: 'Reading package lists... Done' },
+    { type: 'out', text: 'Building dependency tree... Done' },
+    { type: 'ok', text: 'Setting up nmap (7.95) ...' },
+    { type: 'ok', text: 'nmap installed successfully!' },
+  ],
+  'nmap --version': [
+    { type: 'ok', text: 'Nmap version 7.95 ( https://nmap.org )' },
+    { type: 'ok', text: 'Platform: x86_64-pc-linux-gnu' },
+    { type: 'ok', text: 'Compiled with: openssl-3.3.0 nmap-libpcap-1.10.4' },
+  ],
+  'nmap -v': [{ type: 'ok', text: 'Nmap version 7.95 ( https://nmap.org )' }],
+  'apt search metasploit': [
+    { type: 'out', text: 'Sorting... Done' },
+    { type: 'out', text: 'Full Text Search... Done' },
+    { type: 'ok', text: 'metasploit-framework/parrot-security' },
+    { type: 'out', text: '  The world-class exploit framework' },
+  ],
+  'apt show nmap': [
+    { type: 'ok', text: 'Package: nmap' },
+    { type: 'out', text: 'Version: 7.95+dfsg1-1' },
+    { type: 'out', text: 'Priority: optional' },
+    { type: 'out', text: 'Maintainer: Debian Security Tools' },
+    { type: 'out', text: 'Description: The Network Mapper — free security scanner' },
+  ],
+  'pip3 install scapy': [
+    { type: 'out', text: 'Collecting scapy' },
+    { type: 'out', text: '  Downloading scapy-2.5.0.tar.gz (1.3 MB)' },
+    { type: 'out', text: 'Building wheels for collected packages: scapy' },
+    { type: 'ok', text: 'Successfully installed scapy-2.5.0' },
+  ],
+  'go version': [{ type: 'ok', text: 'go version go1.22.0 linux/amd64' }],
+  'go install github.com/ffuf/ffuf/v2@latest': [
+    { type: 'out', text: 'go: downloading github.com/ffuf/ffuf/v2 v2.1.0' },
+    { type: 'out', text: 'go: downloading github.com/ffuf/ffuf/v2/pkg/...' },
+    { type: 'ok', text: 'Installed: /home/parrot/go/bin/ffuf' },
+  ],
+  'go install ffuf@latest': [
+    { type: 'err', text: 'go: ffuf@latest is not a module path' },
+    { type: 'err', text: 'Hint: use full module path: go install github.com/ffuf/ffuf/v2@latest' },
+  ],
+  'which nmap': [{ type: 'ok', text: '/usr/bin/nmap' }],
+  'which ffuf': [{ type: 'ok', text: '/home/parrot/go/bin/ffuf' }],
+  'which python3': [{ type: 'ok', text: '/usr/bin/python3' }],
+  'echo $path': [{ type: 'err', text: '' }, { type: 'out', text: 'Hint: PATH is uppercase: echo $PATH' }],
+  'echo $PATH': [{ type: 'ok', text: '/usr/bin:/usr/sbin:/usr/local/bin:/home/parrot/.local/bin:/home/parrot/go/bin:/usr/local/go/bin' }],
+  'echo $GOPATH': [{ type: 'ok', text: '/home/parrot/go' }],
+  'git clone': [{ type: 'err', text: 'usage: git clone [options] [--] <repo> [<dir>]' }],
+  'git --version': [{ type: 'ok', text: 'git version 2.45.2' }],
+  'docker --version': [{ type: 'ok', text: 'Docker version 27.0.3, build 7d312f7' }],
+  'python3 --version': [{ type: 'ok', text: 'Python 3.12.3' }],
+  'python3 -V': [{ type: 'ok', text: 'Python 3.12.3' }],
+  'pip3 --version': [{ type: 'ok', text: 'pip 24.0 from /usr/lib/python3/dist-packages/pip (python 3.12)' }],
+  'pipx --version': [{ type: 'ok', text: '1.5.0' }],
+  'uname -a': [{ type: 'ok', text: 'Linux parrot 6.5.0-parrot1-amd64 #1 SMP Debian 6.5.3 x86_64 GNU/Linux' }],
+  'uname -r': [{ type: 'ok', text: '6.5.0-parrot1-amd64' }],
+  'cat /etc/os-release': [
+    { type: 'ok', text: 'NAME="Parrot OS"' },
+    { type: 'ok', text: 'VERSION="6.0 (Lorikeet)"' },
+    { type: 'ok', text: 'ID=parrot' },
+    { type: 'ok', text: 'ID_LIKE=debian' },
+    { type: 'ok', text: 'PRETTY_NAME="Parrot OS 6.0 (Lorikeet)"' },
+  ],
+  'ls /usr/bin/nmap': [{ type: 'ok', text: '/usr/bin/nmap' }],
+  'ls /opt': [{ type: 'ok', text: 'sqlmap-dev  wordlists  custom-tools' }],
+  'id': [{ type: 'ok', text: 'uid=1000(parrot) gid=1000(parrot) groups=1000(parrot),24(cdrom),25(floppy),27(sudo),29(audio),30(dip),44(video),46(plugdev),100(users),106(netdev)' }],
+  'sudo apt autoremove': [
+    { type: 'out', text: 'Reading package lists... Done' },
+    { type: 'out', text: 'Building dependency tree... Done' },
+    { type: 'ok', text: '0 packages can be autoremoved.' },
+  ],
+  'dpkg -l nmap': [{ type: 'ok', text: 'ii  nmap  7.95+dfsg1-1  amd64  The Network Mapper' }],
+  'apt list --installed': [
+    { type: 'out', text: 'Listing... Done' },
+    { type: 'ok', text: 'aircrack-ng/parrot-security,now 1:1.7-5 amd64 [installed]' },
+    { type: 'ok', text: 'metasploit-framework/parrot-security,now 6.4.0 amd64 [installed]' },
+    { type: 'ok', text: 'nmap/parrot-security,now 7.95 amd64 [installed]' },
+    { type: 'ok', text: 'wireshark/parrot-security,now 4.2.0 amd64 [installed]' },
+    { type: 'out', text: '(and 1,247 more packages...)' },
+  ],
+};
+
+const simOutput = document.getElementById('sim-output');
+const simInput = document.getElementById('sim-input');
+let cmdHistory = [];
+let histIdx = -1;
+
+function addSimLine(text, type) {
+  const line = document.createElement('div');
+  line.className = 'sim-line';
+  if (type === 'prompt') {
+    line.innerHTML = `<span class="sim-prompt">parrot@parrot:~$</span> ${escapeHtml(text)}`;
+  } else if (type === 'ok') {
+    line.innerHTML = `<span class="sim-ok">${escapeHtml(text)}</span>`;
+  } else if (type === 'err') {
+    line.innerHTML = `<span class="sim-err">${escapeHtml(text)}</span>`;
+  } else if (type === 'warn') {
+    line.innerHTML = `<span class="sim-warn">${escapeHtml(text)}</span>`;
+  } else {
+    line.innerHTML = `<span class="sim-output-text">${escapeHtml(text)}</span>`;
+  }
+  simOutput.appendChild(line);
+  simOutput.scrollTop = simOutput.scrollHeight;
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function processSimCommand(raw) {
+  const cmd = raw.trim();
+  if (!cmd) return;
+
+  cmdHistory.unshift(cmd);
+  histIdx = -1;
+  addSimLine(cmd, 'prompt');
+
+  const response = simCommands[cmd] || simCommands[cmd.toLowerCase()];
+
+  if (response === '__clear__') {
+    simOutput.innerHTML = '';
+    return;
+  }
+
+  if (response) {
+    response.forEach((r, i) => {
+      setTimeout(() => addSimLine(r.text, r.type), i * 80);
+    });
+  } else if (cmd.startsWith('sudo apt install ') || cmd.startsWith('apt install ')) {
+    const pkg = cmd.replace(/sudo\s+/, '').replace('apt install ', '').replace(/ -y/, '').trim();
+    [
+      { type: 'out', text: `Reading package lists... Done` },
+      { type: 'out', text: `Building dependency tree... Done` },
+      { type: 'out', text: `The following NEW packages will be installed: ${pkg}` },
+      { type: 'out', text: `0 upgraded, 1 newly installed, 0 to remove.` },
+      { type: 'out', text: `Need to get X MB of archives.` },
+      { type: 'out', text: `Fetching ${pkg}...` },
+      { type: 'ok', text: `Setting up ${pkg} ... done` },
+    ].forEach((r, i) => setTimeout(() => addSimLine(r.text, r.type), i * 80));
+  } else if (cmd.startsWith('apt search ')) {
+    const term = cmd.replace('apt search ', '');
+    setTimeout(() => addSimLine(`Sorting... Done`, 'out'), 0);
+    setTimeout(() => addSimLine(`Full Text Search... Done`, 'out'), 80);
+    setTimeout(() => addSimLine(`Searching for "${term}" in package database...`, 'out'), 160);
+    setTimeout(() => addSimLine(`${term}/parrot-security — (try apt show ${term} for details)`, 'ok'), 240);
+  } else if (cmd.startsWith('which ')) {
+    const tool = cmd.replace('which ', '');
+    setTimeout(() => addSimLine(`/usr/bin/${tool}`, 'ok'), 0);
+  } else if (cmd.startsWith('git clone ')) {
+    const url = cmd.replace('git clone ', '').split(' ')[0];
+    const name = url.split('/').pop().replace('.git', '') || 'repo';
+    [
+      { type: 'out', text: `Cloning into '${name}'...` },
+      { type: 'out', text: `remote: Enumerating objects: 1,234, done.` },
+      { type: 'out', text: `remote: Counting objects: 100% (1234/1234), done.` },
+      { type: 'out', text: `Receiving objects: 100% (1234/1234), 2.34 MiB | 5 MiB/s, done.` },
+      { type: 'ok', text: `Repository cloned to ./${name}/` },
+    ].forEach((r, i) => setTimeout(() => addSimLine(r.text, r.type), i * 100));
+  } else if (cmd === '' ) {
+    return;
+  } else {
+    setTimeout(() => addSimLine(`bash: ${cmd.split(' ')[0]}: command not found`, 'err'), 0);
+    setTimeout(() => addSimLine(`(type 'help' to see available commands)`, 'out'), 80);
+  }
+}
+
+simInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const val = simInput.value;
+    simInput.value = '';
+    processSimCommand(val);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (histIdx < cmdHistory.length - 1) {
+      histIdx++;
+      simInput.value = cmdHistory[histIdx];
+    }
+  } else if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (histIdx > 0) {
+      histIdx--;
+      simInput.value = cmdHistory[histIdx];
+    } else {
+      histIdx = -1;
+      simInput.value = '';
+    }
+  }
+});
+
+// Welcome message
+addSimLine('Parrot OS Terminal Simulator v2.0', 'ok');
+addSimLine('Type "help" to see available commands', 'out');
+addSimLine('', 'out');
+
+// Focus input when clicking terminal
+document.getElementById('terminal-sim').addEventListener('click', () => simInput.focus());
+
+// ═══════════════════════
+// ACTIVE NAV LINK
+// ═══════════════════════
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-link');
+
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(sec => {
+    if (window.scrollY >= sec.offsetTop - 100) {
+      current = sec.id;
+    }
+  });
+  navLinks.forEach(link => {
+    link.classList.remove('active');
+    if (link.getAttribute('href') === `#${current}`) {
+      link.classList.add('active');
+    }
+  });
+}, { passive: true });
+</script>
+</body>
+</html>

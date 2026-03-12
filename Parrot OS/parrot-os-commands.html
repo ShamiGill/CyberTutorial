@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parrot OS Command Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c10;
+    --bg2: #0d1117;
+    --bg3: #111820;
+    --panel: #0f1923;
+    --border: #1e3a4a;
+    --accent: #00e5ff;
+    --accent2: #00ff88;
+    --accent3: #ff6b35;
+    --danger: #ff2d55;
+    --warn: #ffcc00;
+    --text: #c8d8e8;
+    --text-dim: #6a8a9a;
+    --text-bright: #e8f4ff;
+    --code-bg: #060e14;
+    --green: #00ff88;
+    --cyan: #00e5ff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* Scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,229,255,0.015) 2px,
+      rgba(0,229,255,0.015) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* Noise texture */
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    opacity: 0.4;
+    z-index: 9998;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    position: relative;
+    padding: 60px 40px 50px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #020810 0%, var(--bg) 100%);
+    overflow: hidden;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 300px;
+    background: radial-gradient(ellipse, rgba(0,229,255,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .header-badge {
+    display: inline-block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 4px;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 4px 16px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    animation: pulse-border 3s ease-in-out infinite;
+  }
+
+  @keyframes pulse-border {
+    0%, 100% { border-color: var(--accent); box-shadow: 0 0 8px rgba(0,229,255,0.2); }
+    50% { border-color: var(--accent2); box-shadow: 0 0 16px rgba(0,255,136,0.3); }
+  }
+
+  h1 {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(1.8rem, 4vw, 3.2rem);
+    font-weight: 900;
+    letter-spacing: 3px;
+    color: var(--text-bright);
+    text-shadow: 0 0 40px rgba(0,229,255,0.4), 0 0 80px rgba(0,229,255,0.1);
+    margin-bottom: 12px;
+    animation: glow-title 4s ease-in-out infinite alternate;
+  }
+
+  @keyframes glow-title {
+    from { text-shadow: 0 0 30px rgba(0,229,255,0.3); }
+    to   { text-shadow: 0 0 60px rgba(0,229,255,0.6), 0 0 100px rgba(0,229,255,0.2); }
+  }
+
+  .subtitle {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+  }
+
+  .subtitle span { color: var(--accent2); }
+
+  /* ─── LAYOUT ─── */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ─── TABLE OF CONTENTS ─── */
+  .toc {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    margin: 40px auto;
+    max-width: 1200px;
+    padding: 0 24px;
+  }
+
+  .toc-inner {
+    padding: 30px 0;
+  }
+
+  .toc-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 4px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .toc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 6px 20px;
+  }
+
+  .toc-item {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: color 0.2s;
+  }
+
+  .toc-item::before {
+    content: '>';
+    color: var(--accent);
+    opacity: 0.5;
+    font-size: 0.7rem;
+  }
+
+  .toc-item:hover { color: var(--accent); }
+
+  /* ─── SECTION ─── */
+  .section {
+    margin: 0 auto 6px;
+    max-width: 1200px;
+    padding: 0 24px;
+  }
+
+  /* ─── COMMAND CARD ─── */
+  .cmd-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    margin-bottom: 20px;
+    position: relative;
+    transition: border-color 0.3s, transform 0.2s;
+    animation: fadeSlideIn 0.5s ease both;
+  }
+
+  .cmd-card:hover {
+    border-color: rgba(0,229,255,0.4);
+    transform: translateX(3px);
+  }
+
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .cmd-card.danger { border-left: 4px solid var(--danger); }
+  .cmd-card.warning { border-left: 4px solid var(--warn); }
+  .cmd-card.accent { border-left: 4px solid var(--accent); }
+  .cmd-card.green { border-left: 4px solid var(--green); }
+  .cmd-card.orange { border-left: 4px solid var(--accent3); }
+
+  .cmd-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 24px 14px;
+    border-bottom: 1px solid rgba(30,58,74,0.5);
+    cursor: pointer;
+  }
+
+  .cmd-number {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.6rem;
+    color: var(--text-dim);
+    min-width: 28px;
+  }
+
+  .cmd-name {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.1rem;
+    color: var(--accent);
+    text-shadow: 0 0 12px rgba(0,229,255,0.3);
+  }
+
+  .cmd-card.danger .cmd-name { color: var(--danger); text-shadow: 0 0 12px rgba(255,45,85,0.4); }
+  .cmd-card.warning .cmd-name { color: var(--warn); }
+  .cmd-card.green .cmd-name { color: var(--accent2); text-shadow: 0 0 12px rgba(0,255,136,0.3); }
+  .cmd-card.orange .cmd-name { color: var(--accent3); }
+
+  .cmd-tagline {
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    margin-left: auto;
+    font-style: italic;
+    font-family: 'Exo 2', sans-serif;
+  }
+
+  .cmd-body {
+    padding: 20px 24px;
+  }
+
+  .cmd-syntax {
+    background: var(--code-bg);
+    border: 1px solid rgba(0,229,255,0.1);
+    padding: 10px 16px;
+    margin-bottom: 14px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--accent2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .cmd-syntax::before {
+    content: 'SYNTAX';
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    min-width: 52px;
+  }
+
+  .description {
+    font-size: 0.88rem;
+    color: var(--text);
+    margin-bottom: 16px;
+    line-height: 1.8;
+  }
+
+  .description strong {
+    color: var(--text-bright);
+    font-weight: 600;
+  }
+
+  /* ─── CODE BLOCKS ─── */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 14px 0;
+    position: relative;
+  }
+
+  .code-block-header {
+    background: rgba(0,229,255,0.04);
+    border-bottom: 1px solid var(--border);
+    padding: 6px 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .code-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+  .code-dot:nth-child(1) { background: #ff5f57; }
+  .code-dot:nth-child(2) { background: #ffbd2e; }
+  .code-dot:nth-child(3) { background: #28ca41; }
+
+  .code-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    margin-left: auto;
+    text-transform: uppercase;
+  }
+
+  pre {
+    padding: 16px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.9;
+    overflow-x: auto;
+    color: var(--text);
+  }
+
+  pre .cmd    { color: #00e5ff; }
+  pre .flag   { color: #ff9f43; }
+  pre .arg    { color: #a8e6cf; }
+  pre .comment{ color: #445566; font-style: italic; }
+  pre .path   { color: #fd79a8; }
+  pre .str    { color: #fdcb6e; }
+  pre .var    { color: #81ecec; }
+
+  /* ─── DANGER BOX ─── */
+  .danger-box {
+    background: rgba(255,45,85,0.08);
+    border: 1px solid rgba(255,45,85,0.4);
+    padding: 16px 20px;
+    margin: 14px 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .danger-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 2px;
+    background: linear-gradient(90deg, var(--danger), transparent);
+    animation: scan-line 2s linear infinite;
+  }
+
+  @keyframes scan-line {
+    from { transform: translateX(-100%); }
+    to   { transform: translateX(100%); }
+  }
+
+  .danger-box .danger-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    color: var(--danger);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .danger-box .danger-title::before { content: '⚠'; font-size: 1rem; }
+
+  .danger-box p {
+    font-size: 0.84rem;
+    color: #ffb3c1;
+    line-height: 1.7;
+  }
+
+  /* ─── NOTE BOXES ─── */
+  .note-box {
+    background: rgba(0,229,255,0.04);
+    border-left: 3px solid var(--accent);
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  .note-box.green { border-color: var(--green); background: rgba(0,255,136,0.04); color: #7fffb8; }
+  .note-box.warn  { border-color: var(--warn);  background: rgba(255,204,0,0.04);  color: #ffe680; }
+
+  /* ─── TABLE ─── */
+  .cmd-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    margin: 16px 0;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  .cmd-table th {
+    background: rgba(0,229,255,0.06);
+    color: var(--accent);
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 0.68rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .cmd-table td {
+    padding: 9px 14px;
+    border-bottom: 1px solid rgba(30,58,74,0.4);
+    color: var(--text);
+    vertical-align: top;
+  }
+
+  .cmd-table tr:hover td { background: rgba(0,229,255,0.03); }
+
+  .cmd-table td:first-child { color: var(--accent2); }
+
+  /* ─── SECTION HEADER ─── */
+  .section-header {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 5px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    padding: 40px 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .section-header::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+
+  /* ─── QUICK REF TABLE ─── */
+  .quick-ref {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    margin: 0 auto 60px;
+    max-width: 1200px;
+    padding: 0 24px;
+  }
+
+  .quick-ref-inner { padding: 30px 0; }
+
+  .quick-ref h2 {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 4px;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .qr-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 6px;
+  }
+
+  .qr-item {
+    display: flex;
+    gap: 12px;
+    padding: 8px 12px;
+    background: var(--code-bg);
+    border: 1px solid rgba(30,58,74,0.3);
+    align-items: baseline;
+    transition: border-color 0.2s;
+  }
+
+  .qr-item:hover { border-color: var(--accent); }
+
+  .qr-cmd {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--accent2);
+    min-width: 120px;
+    flex-shrink: 0;
+  }
+
+  .qr-desc {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+  }
+
+  .qr-item.danger .qr-cmd { color: var(--danger); }
+
+  /* ─── FOOTER ─── */
+  footer {
+    border-top: 1px solid var(--border);
+    text-align: center;
+    padding: 30px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+  }
+
+  footer span { color: var(--accent); }
+
+  /* ─── SCROLL INDICATOR ─── */
+  .scroll-indicator {
+    position: fixed;
+    top: 0; left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    z-index: 10000;
+    box-shadow: 0 0 8px var(--accent);
+    transition: width 0.1s;
+    width: 0%;
+  }
+
+  /* ─── BACK TO TOP ─── */
+  .back-top {
+    position: fixed;
+    bottom: 30px; right: 30px;
+    background: var(--panel);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    padding: 10px 14px;
+    cursor: pointer;
+    text-decoration: none;
+    letter-spacing: 1px;
+    opacity: 0;
+    transition: opacity 0.3s, background 0.2s;
+    z-index: 1000;
+  }
+
+  .back-top.visible { opacity: 1; }
+  .back-top:hover { background: rgba(0,229,255,0.1); }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 640px) {
+    header { padding: 40px 20px 30px; }
+    .cmd-header { flex-wrap: wrap; gap: 8px; }
+    .cmd-tagline { display: none; }
+    pre { font-size: 0.72rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="scroll-indicator" id="scrollBar"></div>
+<a href="#top" class="back-top" id="backTop">▲ TOP</a>
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<header id="top">
+  <div class="header-badge">Terminal Reference Guide</div>
+  <h1>PARROT OS COMMANDS</h1>
+  <p class="subtitle">Complete Reference · <span>v2025</span> · Security / Pentesting Edition</p>
+</header>
+
+<!-- ═══════════════ TABLE OF CONTENTS ═══════════════ -->
+<nav class="toc container">
+  <div class="toc-inner">
+    <div class="toc-title">// Index</div>
+    <div class="toc-grid">
+      <a href="#sudo" class="toc-item">sudo</a>
+      <a href="#su" class="toc-item">su</a>
+      <a href="#sudosu" class="toc-item">sudo su</a>
+      <a href="#cat" class="toc-item">cat</a>
+      <a href="#echo" class="toc-item">echo</a>
+      <a href="#history" class="toc-item">history</a>
+      <a href="#clear" class="toc-item">clear</a>
+      <a href="#mkdir" class="toc-item">mkdir</a>
+      <a href="#rmdir" class="toc-item">rmdir</a>
+      <a href="#touch" class="toc-item">touch</a>
+      <a href="#rmrf" class="toc-item">rm -rf</a>
+      <a href="#exit" class="toc-item">exit</a>
+      <a href="#cd" class="toc-item">cd / cd ..</a>
+      <a href="#ls" class="toc-item">ls / ls -la</a>
+      <a href="#pwd" class="toc-item">pwd</a>
+      <a href="#rmrfroot" class="toc-item">⚠ rm -rf /*</a>
+      <a href="#whoami" class="toc-item">whoami</a>
+      <a href="#useradd" class="toc-item">useradd / adduser</a>
+      <a href="#passwd" class="toc-item">Change Password</a>
+      <a href="#deluser" class="toc-item">Delete User</a>
+      <a href="#admin" class="toc-item">Make User Admin</a>
+      <a href="#services" class="toc-item">System Services</a>
+      <a href="#nmap" class="toc-item">nmap</a>
+      <a href="#quickref" class="toc-item">Quick Reference</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════ COMMANDS ═══════════════ -->
+<main class="container">
+
+  <div class="section-header">Privilege &amp; Session Management</div>
+
+  <!-- SUDO -->
+  <div class="cmd-card accent" id="sudo">
+    <div class="cmd-header">
+      <span class="cmd-number">01</span>
+      <span class="cmd-name">sudo</span>
+      <span class="cmd-tagline">SuperUser DO — temporary root execution</span>
+    </div>
+    <div class="cmd-body">
+      <div class="cmd-syntax">sudo [command]</div>
+      <p class="description"><strong>sudo</strong> ("SuperUser DO") lets you run a single command with <strong>root (administrator) privileges</strong> without fully switching to the root account. It checks if your user is in the <code>sudoers</code> file, asks for <em>your</em> password, executes the command as root, then returns you to your normal session.</p>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">examples</span></div>
+        <pre><span class="cmd">sudo</span> <span class="arg">apt update</span>             <span class="comment"># Update package list as root</span>
+<span class="cmd">sudo</span> <span class="arg">apt upgrade</span>            <span class="comment"># Upgrade all packages</span>
+<span class="cmd">sudo</span> <span class="arg">nano /etc/hosts</span>        <span class="comment"># Edit a protected system file</span>
+<span class="cmd">sudo</span> <span class="arg">reboot</span>                 <span class="comment"># Restart the system</span>
+<span class="cmd">sudo</span> <span class="flag">-l</span>                      <span class="comment"># List commands you're allowed to run with sudo</span>
+<span class="cmd">sudo</span> <span class="flag">-u</span> <span class="arg">www-data command</span>    <span class="comment"># Run command as a different user</span></pre>
+      </div>
+      <div class="note-box">ℹ You remain as your normal user — only that one command runs as root. Your sudo session is cached for ~15 minutes.</div>
+    </div>
+  </div>
+
+  <!-- SU -->
+  <div class="cmd-card accent" id="su">
+    <div class="cmd-header">
+      <span class="cmd-number">02</span>
+      <span class="cmd-name">su</span>
+      <span class="cmd-tagline">Switch User — full identity change</span>
+    </div>
+    <div class="cmd-body">
+      <div class="cmd-syntax">su [username]</div>
+      <p class="description"><strong>su</strong> ("Switch User") fully switches your terminal session to another user account. If no username is given, it switches to <strong>root</strong>. Unlike <code>sudo</code>, it asks for the <em>target user's</em> password and changes your entire session identity until you type <code>exit</code>.</p>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">examples</span></div>
+        <pre><span class="cmd">su</span>                   <span class="comment"># Switch to root (asks for ROOT's password)</span>
+<span class="cmd">su</span> <span class="arg">john</span>              <span class="comment"># Switch to user 'john' (asks for john's password)</span>
+<span class="cmd">su</span> <span class="flag">-</span>                  <span class="comment"># Switch to root AND load root's full environment</span>
+<span class="cmd">su</span> <span class="flag">-</span> <span class="arg">john</span>            <span class="comment"># Switch to john with their full login environment</span>
+<span class="cmd">su</span> <span class="flag">-c</span> <span class="str">"command"</span> <span class="arg">user</span> <span class="comment"># Run a single command as another user</span></pre>
+      </div>
+      <div class="note-box warn">⚡ The difference between <code>su</code> and <code>su -</code> matters: without <code>-</code> you keep your current environment variables; with <code>-</code> you get a full login shell as the target user.</div>
+    </div>
+  </div>
+
+  <!-- SUDO SU -->
+  <div class="cmd-card green" id="sudosu">
+    <div class="cmd-header">
+      <span class="cmd-number">03</span>
+      <span class="cmd-name">sudo su</span>
+      <span class="cmd-tagline">Become root using YOUR password</span>
+    </div>
+    <div class="cmd-body">
+      <div class="cmd-syntax">sudo su</div>
+      <p class="description">Combines <code>sudo</code> and <code>su</code> — uses your <strong>sudo privileges</strong> to switch to root, using <em>your own password</em> rather than root's password. This is the most common way to get a persistent root shell in Parrot OS when root has no direct password set.</p>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">examples</span></div>
+        <pre><span class="cmd">sudo su</span>             <span class="comment"># Become root using your password</span>
+<span class="cmd">sudo su</span> <span class="flag">-</span>           <span class="comment"># Become root with root's full login environment</span>
+<span class="cmd">sudo su</span> <span class="flag">-</span> <span class="arg">john</span>     <span class="comment"># Become john using your sudo privileges</span></pre>
+      </div>
+      <table class="cmd-table">
+        <tr><th>Command</th><th>Password Required</th><th>Result</th></tr>
+        <tr><td>sudo [cmd]</td><td>Your password</td><td>One command as root</td></tr>
+        <tr><td>su</td><td>Root's password</td><td>Full root session</td></tr>
+        <tr><td>sudo su</td><td>Your password</td><td>Full root session</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section-header">File &amp; Text Operations</div>
+
+  <!-- CAT -->
+  <div class="cmd-card accent" id="cat">
+    <div class="cmd-header">
+      <span class="cmd-number">04</span>
+      <span class="cmd-name">cat</span>
+      <span class="cmd-tagline">Concatenate — read and display files</span>
+    </div>
+    <div class="cmd-body">
+      <div class="cmd-syntax">cat [options] [file(s)]</div>
+      <p class="description"><strong>cat</strong> ("Concatenate") reads file contents and writes them to standard output (the terminal). It can display single files, combine multiple files, create files from input, and append content. One of the most frequently used Linux commands.</p>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">examples</span></div>
+        <pre><span class="cmd">cat</span> <span class="arg">file.txt</span>                   <span class="comment"># Display file contents</span>
+<span class="cmd">cat</span> <span class="arg">file1.txt file2.txt</span>         <span class="comment"># Display both files together</span>
+<span class="cmd">cat</span> <span class="arg">file1.txt</span> > <span class="arg">file2.txt</span>       <span class="comment"># Copy file1 into file2 (overwrites)</span>
+<span class="cmd">cat</span> <span class="arg">file1.txt</span> >> <span class="arg">file2.txt</span>      <span class="comment"># Append file1 contents to file2</span>
+<span class="cmd">cat</span> <span class="flag">-n</span> <span class="arg">file.txt</span>                 <span class="comment"># Display with line numbers</span>
+<span class="cmd">cat</span> <span class="flag">-A</span> <span class="arg">file.txt</span>                 <span class="comment"># Show hidden characters (tabs, line endings)</span>
+<span class="cmd">cat</span> > <span class="arg">newfile.txt</span>               <span class="comment"># Create new file from keyboard input (Ctrl+D to save)</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ECHO -->
+  <div class="cmd-card accent" id="echo">
+    <div class="cmd-header">
+      <span class="cmd-number">05</span>
+      <span class="cmd-name">echo</span>
+      <span class="cmd-tagline">Print text and variables to terminal</span>
+    </div>
+    <div class="cmd-body">
+      <div class="cmd-syntax">echo [options] [string/variable]</div>
+      <p class="description"><strong>echo</strong> outputs text, variables, or command results to the terminal. Widely used in scripts for messages, writing to files, and inspecting environment variables.</p>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">examples</span></div>
+        <pre><span class="cmd">echo</span> <span class="str">"Hello World"</span>              <span class="comment"># Print text</span>
+<span class="cmd">echo</span> <span class="var">$USER</span>                       <span class="comment"># Print current username variable</span>
+<span class="cmd">echo</span> <span class="var">$PATH</span>                       <span class="comment"># Print the PATH variable</span>
+<span class="cmd">echo</span> <span class="var">$HOME</span>                       <span class="comment"># Print home directory path</span>
+<span class="cmd">echo</span> <span class="str">"text"</span> > <span class="arg">file.txt</span>           <span class="comment"># Write text to file (overwrites)</span>
+<span class="cmd">echo</span> <span class="str">"text"</span> >> <span class="arg">file.txt</span>          <span class="comment"># Append text to file</span>
+<span class="cmd">echo</span> <span class="flag">-e</span> <span class="str">"Line1\nLine2"</span>           <span class="comment"># -e enables \n (newline) escape sequences</span>
+<span class="cmd">echo</span> <span class="flag">-n</span> <span class="str">"No newline"</span>             <span class="comment"># -n suppresses trailing newline</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="cmd-card accent" id="history">
+    <div class="cmd-header">
+      <span class="cmd-number">06</span>
+      <span class="cmd-name">history</span>
+      <span class="cmd-tagline">Browse and reuse past commands</span>
+    </div>
+    <div class="cmd-body">
+      <div class="cmd-syntax">history [number]</div>
+      <p class="description">Displays a <strong>numbered list</strong> of previously executed commands stored in <code>~/.bash_history</code>. You can re-execute any command by its number, search through history, or clear it entirely.</p>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">examples</span></div>
+        <pre><span class="cmd">history</span>                      <span class="comment"># Show all command history</span>
+<span class="cmd">history</span> <span class="arg">20</span>                   <span class="comment"># Show last 20 commands</span>
+<span class="arg">!150</span>                         <span class="comment"># Re-run command number 150</span>
+<span class="arg">!!</span>                           <span class="comment"># Re-run the very last command</span>
+<span class="arg">!sudo</span>                        <span class="comment"># Re-run the last command that started with 'sudo'</span>
+<span class="cmd">history</span> <span class="flag">-c</span>                   <span class="comment"># Clear all history from memory</span>
+<span class="cmd">history</span> | <span class="cmd">grep</span> <span class="arg">ssh</span>          <span class="comment"># Search history for 'ssh' commands</span>
+<span class="cmd">Ctrl</span>+<span class="arg">R</span>                       <span class="comment"># Reverse interactive search through history</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLEAR -->
+  <div class="cmd-card accent" id="clear">
+    <div class="cmd-header">
+      <span class="cmd-number">07</span>
+      <span class="cmd-name">clear</span>
+      <span class="cmd-tagline">Clean the terminal screen</span>
+    </div>
+    <div class="cmd-body">
+      <div class="cmd-syntax">clear</div>
+      <p class="description">Clears all visible text from the terminal screen. <strong>History is NOT deleted</strong> — it just scrolls out of view. The terminal buffer and command history remain intact.</p>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">examples</span></div>
+        <pre><span class="cmd">clear</span>           <span class="comment"># Clear the terminal screen</span>
+<span class="cmd">Ctrl</span>+<span class="arg">L</span>          <span class="comment"># Keyboard shortcut — identical effect</span>
+<span class="cmd">reset</span>           <span class="comment"># Full terminal reset (fixes broken display/encoding)</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-header">Directory &amp; File Management</div>
+
+  <!-- MKDIR -->
+  <div class="cmd-card green" id="mkdir">
+    <div class="cmd-header">
+      <span class="cmd-number">08</span>
+      <span class="cmd-name">mkdir</span>
+      <span class="cmd-tagline">Make Directory — create folders</span>
+    </div>
+    <div class="cmd-body">
+      <div class="cmd-syntax">mkdir [options] directory_name</div>
+      <p class="description"><strong>mkdir</strong> ("Make Directory") creates new folders. Can create single directories, multiple at once, or deeply nested paths with a single command using the <code>-p</code> flag.</p>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">examples</span></div>
+        <pre><span class="cmd">mkdir</span> <span class="arg">myfolder</span>                          <span class="comment"># Create a single folder</span>
+<span class="cmd">mkdir</span> <span class="arg">folder1 folder2 folder3</span>           <span class="comment"># Create multiple folders at once</span>
+<span class="cmd">mkdir</span> <span class="flag">-p</span> <span class="path">projects/web/html</span>             <span class="comment"># Create nested folders (parents too)</span>
+<span class="cmd">mkdir</span> <span class="flag">-m</span> <span class="arg">755</span> <span class="arg">securefolder</span>             <span class="comment"># Create folder with specific permissions</span>
+<span class="cmd">mkdir</span> <span class="flag">-v</span> <span class="arg">newfolder</span>                     <span class="comment"># Verbose: print what was created</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- RMDIR -->
+  <div class="cmd-card orange" id="rmdir">
+    <div class="cmd-header">
+      <span class="cmd-number">09</span>
+      <span class="cmd-name">rmdir</span>
+      <span class="cmd-tagline">Remove empty directories only</span>
+    </div>
+    <div class="cmd-body">
+      <div class="cmd-syntax">rmdir [options] directory_name</div>
+      <p class="description"><strong>rmdir</strong> ("Remove Directory") deletes <em>empty</em> folders only. It <strong>will fail</strong> if the directory contains any files or subdirectories. For non-empty directories, use <code>rm -rf</code>.</p>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">examples</span></div>
+        <pre><span class="cmd">rmdir</span> <span class="arg">myfolder</span>           <span class="comment"># Remove empty folder</span>
+<span class="cmd">rmdir</span> <span class="flag">-p</span> <span class="path">a/b/c</span>           <span class="comment"># Remove nested empty directories recursively</span>
+<span class="cmd">rmdir</span> <span class="flag">-v</span> <span class="arg">myfolder</span>        <span class="comment"># Verbose output of what was removed</span></pre>
+      </div>
+      <div class="note-box warn">⚡ rmdir only works on empty directories. Use <code>rm -rf foldername</code> to delete folders with content.</div>
+    </div>
+  </div>
+
+  <!-- TOUCH -->
+  <div class="cmd-card green" id="touch">
+    <div class="cmd-header">
+      <span class="cmd-number">10</span>
+      <span class="cmd-name">touch</span>
+      <span class="cmd-tagline">Create empty files or update timestamps</span>
+    </div>
+    <div class="cmd-body">
+      <div class="cmd-syntax">touch [options] filename</div>
+      <p class="description"><strong>touch</strong> creates a new empty file if it doesn't exist, or updates the <strong>last-accessed and last-modified timestamps</strong> of an existing file without changing its contents.</p>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">examples</span></div>
+        <pre><span class="cmd">touch</span> <span class="arg">newfile.txt</span>                      <span class="comment"># Create an empty file</span>
+<span class="cmd">touch</span> <span class="arg">file1.txt file2.txt file3.txt</span>    <span class="comment"># Create multiple files at once</span>
+<span class="cmd">touch</span> <span class="flag">-t</span> <span class="arg">202301011200</span> <span class="arg">file.txt</span>        <span class="comment"># Set specific timestamp (YYYYMMDDhhmm)</span>
+<span class="cmd">touch</span> <span class="flag">-a</span> <span class="arg">file.txt</span>                     <span class="comment"># Update only access time</span>
+<span class="cmd">touch</span> <span class="flag">-m</span> <span class="arg">file.txt</span>                     <span class="comment"># Update only modification time</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- RM -RF -->
+  <div class="cmd-card warning" id="rmrf">
+    <div class="cmd-header">
+      <span class="cmd-number">11</span>
+      <span class="cmd-name">rm -rf</span>
+      <span class="cmd-tagline">Force delete files and directories recursively</span>
+    </div>
+    <div class="cmd-body">
+      <div class="cmd-syntax">rm [options] [file/directory]</div>
+      <p class="description"><strong>rm -rf</strong> removes files and directories. The <code>-r</code> flag means <em>recursive</em> (including all contents), and <code>-f</code> means <em>force</em> (no confirmation prompts, ignores errors). Together they permanently delete anything you point them at.</p>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">examples</span></div>
+        <pre><span class="cmd">rm</span> <span class="arg">file.txt</span>              <span class="comment"># Delete a single file</span>
+<span class="cmd">rm</span> <span class="arg">file1.txt file2.txt</span>   <span class="comment"># Delete multiple files</span>
+<span class="cmd">rm</span> <span class="flag">-r</span> <span class="arg">myfolder/</span>          <span class="comment"># Delete folder and all contents (asks confirmation)</span>
+<span class="cmd">rm</span> <span class="flag">-f</span> <span class="arg">file.txt</span>           <span class="comment"># Force delete, no prompts</span>
+<span class="cmd">rm</span> <span class="flag">-rf</span> <span class="arg">myfolder/</span>         <span class="comment"># Force delete folder and everything inside silently</span>
+<span class="cmd">rm</span> <span class="flag">-i</span> <span class="arg">file.txt</span>           <span class="comment"># Interactive: ask before each deletion (safer)</span></pre>
+      </div>
+      <div class="danger-box">
+        <div class="danger-title">No Recycle Bin</div>
+        <p>Files deleted with <code>rm</code> are <strong>permanently gone</strong>. There is no Trash folder. There is no undo. Always double-check your path before running <code>rm -rf</code>.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXIT -->
+  <div class="cmd-card accent" id="exit">
+    <div class="cmd-header">
+      <span class="cmd-number">12</span>
+      <span class="cmd-name">exit</span>
+      <span class="cmd-tagline">End current session or shell</span>
+    </div>
+    <div class="cmd-body">
+      <div class="cmd-syntax">exit [status_code]</div>
+      <p class="description"><strong>exit</strong> terminates the current shell session. If you used <code>su</code> or <code>sudo su</code> to switch users, <code>exit</code> returns you to the previous user. In a script, the exit code signals success (0) or failure (non-zero) to the calling process.</p>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">examples</span></div>
+        <pre><span class="cmd">exit</span>           <span class="comment"># Exit current terminal/session</span>
+<span class="cmd">exit</span> <span class="arg">0</span>         <span class="comment"># Exit with status 0 (success)</span>
+<span class="cmd">exit</span> <span class="arg">1</span>         <span class="comment"># Exit with status 1 (general error)</span>
+<span class="cmd">exit</span> <span class="arg">127</span>       <span class="comment"># Exit code 127 = command not found</span>
+<span class="cmd">Ctrl</span>+<span class="arg">D</span>         <span class="comment"># Keyboard shortcut that sends EOF, same as exit</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-header">Navigation</div>
+
+  <!-- CD -->
+  <div class="cmd-card accent" id="cd">
+    <div class="cmd-header">
+      <span class="cmd-number">13 &amp; 14</span>
+      <span class="cmd-name">cd &nbsp;/&nbsp; cd ..</span>
+      <span class="cmd-tagline">Change Directory — navigate the filesystem</span>
+    </div>
+    <div class="cmd-body">
+      <div class="cmd-syntax">cd [directory]</div>
+      <p class="description"><strong>cd</strong> ("Change Directory") navigates through the Linux filesystem. <code>cd ..</code> specifically moves one level <strong>up</strong> to the parent directory. Understanding absolute vs relative paths is key to using cd effectively.</p>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">navigation examples</span></div>
+        <pre><span class="cmd">cd</span> <span class="path">/home/user/Desktop</span>    <span class="comment"># Go to an absolute path (from root /)</span>
+<span class="cmd">cd</span> <span class="arg">Documents</span>             <span class="comment"># Go to a relative path (from current location)</span>
+<span class="cmd">cd</span> <span class="arg">~</span>                     <span class="comment"># Go to your home directory</span>
+<span class="cmd">cd</span>                       <span class="comment"># Same as cd ~ (home directory)</span>
+<span class="cmd">cd</span> <span class="arg">-</span>                     <span class="comment"># Go back to the previous directory</span>
+<span class="cmd">cd</span> <span class="arg">..</span>                    <span class="comment"># Go up ONE level (to parent directory)</span>
+<span class="cmd">cd</span> <span class="arg">../..</span>                 <span class="comment"># Go up TWO levels</span>
+<span class="cmd">cd</span> <span class="arg">../../etc</span>             <span class="comment"># Go up two levels then into 'etc'</span>
+<span class="cmd">cd</span> <span class="path">/</span>                     <span class="comment"># Go to the root of the filesystem</span></pre>
+      </div>
+      <table class="cmd-table">
+        <tr><th>Shortcut</th><th>Meaning</th></tr>
+        <tr><td>~</td><td>Your home directory (/home/username)</td></tr>
+        <tr><td>.</td><td>Current directory</td></tr>
+        <tr><td>..</td><td>Parent directory (one level up)</td></tr>
+        <tr><td>-</td><td>Previous directory (toggle)</td></tr>
+        <tr><td>/</td><td>Root of the entire filesystem</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- LS / PWD -->
+  <div class="cmd-card accent" id="ls">
+    <div class="cmd-header">
+      <span class="cmd-number">15 &amp; 16</span>
+      <span class="cmd-name">ls &nbsp;/&nbsp; pwd</span>
+      <span class="cmd-tagline">List contents / Print working directory</span>
+    </div>
+    <div class="cmd-body">
+      <div class="cmd-syntax">ls [options] [path] &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; pwd</div>
+      <p class="description"><strong>ls</strong> ("List") shows the files and directories in a location. <strong>pwd</strong> ("Print Working Directory") shows you exactly where you currently are in the filesystem as a full absolute path.</p>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">ls examples</span></div>
+        <pre><span class="cmd">ls</span>                   <span class="comment"># List current directory (visible files only)</span>
+<span class="cmd">ls</span> <span class="path">/etc</span>              <span class="comment"># List contents of /etc</span>
+<span class="cmd">ls</span> <span class="flag">-l</span>                <span class="comment"># Long format: permissions, owner, size, date</span>
+<span class="cmd">ls</span> <span class="flag">-a</span>                <span class="comment"># Show ALL files including hidden (dot files)</span>
+<span class="cmd">ls</span> <span class="flag">-la</span>               <span class="comment"># Long format + hidden files (most useful combo)</span>
+<span class="cmd">ls</span> <span class="flag">-al</span>               <span class="comment"># Identical to ls -la (flag order doesn't matter)</span>
+<span class="cmd">ls</span> <span class="flag">-lh</span>               <span class="comment"># Human-readable file sizes (KB, MB, GB)</span>
+<span class="cmd">ls</span> <span class="flag">-lt</span>               <span class="comment"># Sort by modification time (newest first)</span>
+<span class="cmd">ls</span> <span class="flag">-lS</span>               <span class="comment"># Sort by file size (largest first)</span>
+<span class="cmd">ls</span> <span class="arg">*.txt</span>             <span class="comment"># List only .txt files (wildcard)</span>
+<span class="comment">
+# pwd example</span>
+<span class="cmd">pwd</span>                  <span class="comment"># Output: /home/parrot/Documents</span></pre>
+      </div>
+      <div class="note-box">ℹ <strong>ls -la output decoded:</strong> The first column like <code>-rwxr-xr-x</code> shows: file type (-=file, d=dir, l=link), then owner/group/other permissions (r=read, w=write, x=execute).</div>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">ls -la output columns</span></div>
+        <pre><span class="comment"># Permissions  Links  Owner   Group   Size    Date         Name</span>
+  -rwxr-xr-x   1      parrot  parrot  4096    Jan 5 12:00  script.sh
+  drwxr-xr-x   2      parrot  parrot  4096    Jan 5 11:00  .hidden_folder
+  lrwxrwxrwx   1      root    root    7       Jan 1 00:00  link -> target</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-header">⚠ Danger Zone</div>
+
+  <!-- RM -RF /* -->
+  <div class="cmd-card danger" id="rmrfroot">
+    <div class="cmd-header">
+      <span class="cmd-number">⚠</span>
+      <span class="cmd-name">rm -rf /*</span>
+      <span class="cmd-tagline">SYSTEM DESTROYER — educational awareness only</span>
+    </div>
+    <div class="cmd-body">
+      <div class="danger-box">
+        <div class="danger-title">CRITICAL DANGER — NEVER RUN THIS COMMAND</div>
+        <p>This command recursively and forcefully deletes <strong>EVERYTHING</strong> from the root <code>/</code> directory — your entire operating system, all files, all configurations, all user data. The system will crash mid-deletion and become completely <strong>unbootable</strong>. There is no undo. There is no recovery without a full backup.</p>
+      </div>
+      <p class="description" style="margin-top:14px">This command is documented here <strong>purely for educational awareness</strong> — so you recognize it, understand why it's catastrophic, and never run it. It's also used so you can recognize if someone is trying to trick you into running it.</p>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">breakdown (DO NOT RUN)</span></div>
+        <pre><span class="cmd">rm</span>           <span class="comment"># The remove command</span>
+<span class="flag">-r</span>           <span class="comment"># Recursive: deletes all folders and subfolders</span>
+<span class="flag">-f</span>           <span class="comment"># Force: no warnings, no confirmation prompts</span>
+<span class="path">/*</span>           <span class="comment"># EVERYTHING inside / (root) = the entire system</span>
+
+<span class="comment"># Result: complete operating system destruction</span></pre>
+      </div>
+      <div class="note-box warn">⚡ Modern Linux has a safeguard: you need <code>--no-preserve-root</code> flag to run this. But some older systems or misconfigured environments may not. Never run it regardless.</div>
+    </div>
+  </div>
+
+  <div class="section-header">System &amp; User Information</div>
+
+  <!-- WHOAMI -->
+  <div class="cmd-card accent" id="whoami">
+    <div class="cmd-header">
+      <span class="cmd-number">19</span>
+      <span class="cmd-name">whoami</span>
+      <span class="cmd-tagline">Display the current active username</span>
+    </div>
+    <div class="cmd-body">
+      <div class="cmd-syntax">whoami</div>
+      <p class="description">Prints the <strong>username of the currently effective user</strong>. After <code>sudo su</code> or <code>su</code>, this confirms whether you're actually running as root or as your original user.</p>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">examples</span></div>
+        <pre><span class="cmd">whoami</span>             <span class="comment"># Output: parrot (or root if you're root)</span>
+<span class="cmd">id</span>                 <span class="comment"># More detail: uid, gid, and all groups</span>
+<span class="cmd">id</span> <span class="arg">john</span>            <span class="comment"># Show id info for another user</span>
+<span class="cmd">who</span>                <span class="comment"># Show all users currently logged in</span>
+<span class="cmd">w</span>                  <span class="comment"># Extended: who's logged in + what they're doing</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-header">User Management</div>
+
+  <!-- USERADD / ADDUSER -->
+  <div class="cmd-card green" id="useradd">
+    <div class="cmd-header">
+      <span class="cmd-number">20 &amp; 21</span>
+      <span class="cmd-name">useradd &nbsp;/&nbsp; adduser</span>
+      <span class="cmd-tagline">Create new user accounts</span>
+    </div>
+    <div class="cmd-body">
+      <div class="cmd-syntax">useradd [options] username &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; adduser username</div>
+      <p class="description"><code>useradd</code> is a <strong>low-level</strong> command that creates users without a home directory or password by default — requires manual setup. <code>adduser</code> is a friendlier, <strong>interactive wizard</strong> that sets everything up automatically. Use <code>adduser</code> for normal use; <code>useradd</code> for scripting.</p>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">useradd (low-level)</span></div>
+        <pre><span class="cmd">sudo useradd</span> <span class="arg">john</span>                       <span class="comment"># Create user (no home dir, no password!)</span>
+<span class="cmd">sudo useradd</span> <span class="flag">-m</span> <span class="arg">john</span>                   <span class="comment"># Create user WITH home directory</span>
+<span class="cmd">sudo useradd</span> <span class="flag">-m</span> <span class="flag">-s</span> <span class="path">/bin/bash</span> <span class="arg">john</span>    <span class="comment"># With home dir and bash shell</span>
+<span class="cmd">sudo useradd</span> <span class="flag">-m</span> <span class="flag">-G</span> <span class="arg">sudo john</span>          <span class="comment"># Create user and add to sudo group</span>
+<span class="cmd">sudo passwd</span> <span class="arg">john</span>                        <span class="comment"># Set password separately (required!)</span></pre>
+      </div>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">adduser (interactive — recommended)</span></div>
+        <pre><span class="cmd">sudo adduser</span> <span class="arg">john</span>    <span class="comment"># Interactive wizard: sets up home dir, password, full name, etc.</span>
+<span class="comment">
+# You'll be prompted for:
+# New password / Confirm password
+# Full Name, Room Number, Work Phone, Home Phone (all optional)
+# Confirmation: Is the information correct? [Y/n]</span></pre>
+      </div>
+      <div class="note-box green">✓ Recommended: Use <code>adduser</code> for manual user creation. Use <code>useradd</code> in shell scripts where you need full control.</div>
+    </div>
+  </div>
+
+  <!-- CHANGE PASSWORD -->
+  <div class="cmd-card accent" id="passwd">
+    <div class="cmd-header">
+      <span class="cmd-number">22</span>
+      <span class="cmd-name">passwd</span>
+      <span class="cmd-tagline">Change user passwords</span>
+    </div>
+    <div class="cmd-body">
+      <div class="cmd-syntax">passwd [username]</div>
+      <p class="description">The <strong>passwd</strong> command changes user account passwords. Running it without arguments changes <em>your own</em> password. With a username (and root/sudo), it changes that user's password.</p>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">examples</span></div>
+        <pre><span class="cmd">passwd</span>                  <span class="comment"># Change YOUR OWN password</span>
+<span class="cmd">sudo passwd</span> <span class="arg">john</span>        <span class="comment"># Change john's password (as root)</span>
+<span class="cmd">sudo passwd</span> <span class="arg">root</span>        <span class="comment"># Set/change the root password</span>
+<span class="cmd">sudo passwd</span> <span class="flag">-l</span> <span class="arg">john</span>    <span class="comment"># Lock john's account (disable login)</span>
+<span class="cmd">sudo passwd</span> <span class="flag">-u</span> <span class="arg">john</span>    <span class="comment"># Unlock john's account</span>
+<span class="cmd">sudo passwd</span> <span class="flag">-e</span> <span class="arg">john</span>    <span class="comment"># Expire password: force change at next login</span>
+<span class="cmd">sudo passwd</span> <span class="flag">-S</span> <span class="arg">john</span>    <span class="comment"># Show password status for john</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- DELETE USER -->
+  <div class="cmd-card orange" id="deluser">
+    <div class="cmd-header">
+      <span class="cmd-number">23</span>
+      <span class="cmd-name">userdel / deluser</span>
+      <span class="cmd-tagline">Remove user accounts from the system</span>
+    </div>
+    <div class="cmd-body">
+      <div class="cmd-syntax">userdel [options] username &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; deluser username</div>
+      <p class="description">Removes user accounts. By default, the home directory is <strong>preserved</strong>. Add the <code>-r</code> flag to also delete the home directory and mail spool.</p>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">examples</span></div>
+        <pre><span class="cmd">sudo userdel</span> <span class="arg">john</span>                   <span class="comment"># Delete user, KEEP home directory</span>
+<span class="cmd">sudo userdel</span> <span class="flag">-r</span> <span class="arg">john</span>               <span class="comment"># Delete user AND remove home dir + mail</span>
+<span class="cmd">sudo deluser</span> <span class="arg">john</span>                   <span class="comment"># Friendlier version (like adduser)</span>
+<span class="cmd">sudo deluser</span> <span class="flag">--remove-home</span> <span class="arg">john</span>    <span class="comment"># Friendly version with home dir removal</span>
+<span class="cmd">sudo deluser</span> <span class="arg">john sudo</span>             <span class="comment"># Remove john FROM the sudo group (not delete user)</span></pre>
+      </div>
+      <div class="note-box warn">⚡ Always ensure the user is logged out before deleting. Check with <code>who</code> command first.</div>
+    </div>
+  </div>
+
+  <!-- MAKE ADMIN -->
+  <div class="cmd-card green" id="admin">
+    <div class="cmd-header">
+      <span class="cmd-number">24</span>
+      <span class="cmd-name">usermod -aG sudo</span>
+      <span class="cmd-tagline">Grant administrator (sudo) privileges</span>
+    </div>
+    <div class="cmd-body">
+      <div class="cmd-syntax">sudo usermod -aG sudo username</div>
+      <p class="description">Making a user an admin means adding them to the <strong>sudo group</strong>. Once in this group, they can run commands with <code>sudo</code>. The <code>-a</code> flag means <em>append</em> (don't remove from other groups), <code>-G</code> specifies the group.</p>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">methods</span></div>
+        <pre><span class="comment"># Method 1 — usermod (most common)</span>
+<span class="cmd">sudo usermod</span> <span class="flag">-aG</span> <span class="arg">sudo john</span>
+
+<span class="comment"># Method 2 — gpasswd</span>
+<span class="cmd">sudo gpasswd</span> <span class="flag">-a</span> <span class="arg">john sudo</span>
+
+<span class="comment"># Method 3 — Add to multiple groups at once</span>
+<span class="cmd">sudo usermod</span> <span class="flag">-aG</span> <span class="arg">sudo,adm,dialout john</span>
+
+<span class="comment"># Verify it worked</span>
+<span class="cmd">groups</span> <span class="arg">john</span>          <span class="comment"># Should show 'sudo' in the output</span>
+<span class="cmd">id</span> <span class="arg">john</span>              <span class="comment"># Full details including group memberships</span></pre>
+      </div>
+      <div class="note-box">ℹ The user must <strong>log out and log back in</strong> for group changes to take effect. The new shell session will load the updated group membership.</div>
+    </div>
+  </div>
+
+  <div class="section-header">System Services</div>
+
+  <!-- SYSTEMCTL -->
+  <div class="cmd-card accent" id="services">
+    <div class="cmd-header">
+      <span class="cmd-number">25</span>
+      <span class="cmd-name">systemctl</span>
+      <span class="cmd-tagline">Manage systemd services — start, stop, enable</span>
+    </div>
+    <div class="cmd-body">
+      <div class="cmd-syntax">systemctl [action] [service-name]</div>
+      <p class="description">Parrot OS uses <strong>systemd</strong> as its init system. <code>systemctl</code> is the primary tool to manage system services — start/stop them, check their status, and control whether they auto-start at boot.</p>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">basic service control</span></div>
+        <pre><span class="cmd">sudo systemctl start</span>   <span class="arg">apache2</span>       <span class="comment"># Start a service</span>
+<span class="cmd">sudo systemctl stop</span>    <span class="arg">apache2</span>       <span class="comment"># Stop a service</span>
+<span class="cmd">sudo systemctl restart</span> <span class="arg">apache2</span>       <span class="comment"># Stop then start again (full restart)</span>
+<span class="cmd">sudo systemctl reload</span>  <span class="arg">apache2</span>       <span class="comment"># Reload config without stopping</span>
+<span class="cmd">sudo systemctl status</span>  <span class="arg">apache2</span>       <span class="comment"># Check if running + last log lines</span></pre>
+      </div>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">boot persistence</span></div>
+        <pre><span class="cmd">sudo systemctl enable</span>  <span class="arg">apache2</span>       <span class="comment"># Auto-start service at every boot</span>
+<span class="cmd">sudo systemctl disable</span> <span class="arg">apache2</span>       <span class="comment"># Don't auto-start at boot</span>
+<span class="cmd">sudo systemctl enable</span> <span class="flag">--now</span> <span class="arg">apache2</span> <span class="comment"># Enable AND start immediately</span>
+<span class="cmd">systemctl is-enabled</span>   <span class="arg">apache2</span>       <span class="comment"># Check if enabled for boot</span>
+<span class="cmd">systemctl is-active</span>    <span class="arg">apache2</span>       <span class="comment"># Check if currently running</span></pre>
+      </div>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">listing &amp; exploring</span></div>
+        <pre><span class="cmd">systemctl list-units</span> <span class="flag">--type=service</span>         <span class="comment"># All active services</span>
+<span class="cmd">systemctl list-units</span> <span class="flag">--type=service --all</span>   <span class="comment"># All services (active + inactive)</span>
+<span class="cmd">systemctl list-unit-files</span>                   <span class="comment"># All installed service files</span>
+<span class="cmd">journalctl</span> <span class="flag">-u</span> <span class="arg">apache2</span>                       <span class="comment"># View logs for a specific service</span>
+<span class="cmd">journalctl</span> <span class="flag">-u</span> <span class="arg">apache2</span> <span class="flag">-f</span>                   <span class="comment"># Follow live logs</span></pre>
+      </div>
+      <table class="cmd-table">
+        <tr><th>Service</th><th>Command</th><th>Purpose</th></tr>
+        <tr><td>apache2</td><td>sudo systemctl start apache2</td><td>Web server</td></tr>
+        <tr><td>mysql</td><td>sudo systemctl start mysql</td><td>MySQL database</td></tr>
+        <tr><td>ssh</td><td>sudo systemctl start ssh</td><td>SSH server</td></tr>
+        <tr><td>postgresql</td><td>sudo systemctl start postgresql</td><td>PostgreSQL DB</td></tr>
+        <tr><td>networking</td><td>sudo systemctl restart networking</td><td>Network interfaces</td></tr>
+        <tr><td>tor</td><td>sudo systemctl start tor</td><td>Tor anonymity network</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section-header">Network Reconnaissance</div>
+
+  <!-- NMAP -->
+  <div class="cmd-card orange" id="nmap">
+    <div class="cmd-header">
+      <span class="cmd-number">26</span>
+      <span class="cmd-name">nmap</span>
+      <span class="cmd-tagline">Network Mapper — port scanning &amp; host discovery</span>
+    </div>
+    <div class="cmd-body">
+      <div class="cmd-syntax">nmap [options] [target]</div>
+      <p class="description"><strong>nmap</strong> (Network Mapper) is the industry-standard tool for network exploration and security auditing. It discovers hosts, open ports, running services, service versions, operating systems, and known vulnerabilities. It's one of the most essential tools in the Parrot OS security toolkit.</p>
+
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">basic scanning</span></div>
+        <pre><span class="cmd">nmap</span> <span class="arg">192.168.1.1</span>            <span class="comment"># Basic scan of a single IP</span>
+<span class="cmd">nmap</span> <span class="arg">192.168.1.1-254</span>        <span class="comment"># Scan a range of IPs</span>
+<span class="cmd">nmap</span> <span class="arg">192.168.1.0/24</span>         <span class="comment"># Scan an entire subnet (256 hosts)</span>
+<span class="cmd">nmap</span> <span class="arg">scanme.nmap.org</span>        <span class="comment"># Scan by domain name</span>
+<span class="cmd">nmap</span> <span class="arg">10.0.0.1 10.0.0.2</span>     <span class="comment"># Scan multiple specific targets</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">port scanning</span></div>
+        <pre><span class="cmd">nmap</span> <span class="flag">-p</span> <span class="arg">80</span> <span class="arg">192.168.1.1</span>             <span class="comment"># Scan a specific port</span>
+<span class="cmd">nmap</span> <span class="flag">-p</span> <span class="arg">80,443,22</span> <span class="arg">192.168.1.1</span>     <span class="comment"># Scan multiple specific ports</span>
+<span class="cmd">nmap</span> <span class="flag">-p</span> <span class="arg">1-1000</span> <span class="arg">192.168.1.1</span>        <span class="comment"># Scan a port range</span>
+<span class="cmd">nmap</span> <span class="flag">-p-</span> <span class="arg">192.168.1.1</span>              <span class="comment"># Scan ALL 65535 ports (thorough)</span>
+<span class="cmd">nmap</span> <span class="flag">--top-ports</span> <span class="arg">100</span> <span class="arg">192.168.1.1</span> <span class="comment"># Scan the 100 most common ports</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">scan types</span></div>
+        <pre><span class="cmd">nmap</span> <span class="flag">-sS</span> <span class="arg">192.168.1.1</span>     <span class="comment"># SYN Stealth Scan (default, fast, less detectable)</span>
+<span class="cmd">nmap</span> <span class="flag">-sT</span> <span class="arg">192.168.1.1</span>     <span class="comment"># TCP Connect Scan (slower, no root needed)</span>
+<span class="cmd">nmap</span> <span class="flag">-sU</span> <span class="arg">192.168.1.1</span>     <span class="comment"># UDP Scan (slow but finds UDP services)</span>
+<span class="cmd">nmap</span> <span class="flag">-sn</span> <span class="arg">192.168.1.0/24</span> <span class="comment"># Ping Scan: just check which hosts are alive</span>
+<span class="cmd">nmap</span> <span class="flag">-sA</span> <span class="arg">192.168.1.1</span>     <span class="comment"># ACK Scan: map firewall rules</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">detection &amp; fingerprinting</span></div>
+        <pre><span class="cmd">nmap</span> <span class="flag">-sV</span> <span class="arg">192.168.1.1</span>          <span class="comment"># Detect service/version on open ports</span>
+<span class="cmd">nmap</span> <span class="flag">-O</span>  <span class="arg">192.168.1.1</span>          <span class="comment"># Detect operating system (requires root)</span>
+<span class="cmd">nmap</span> <span class="flag">-A</span>  <span class="arg">192.168.1.1</span>          <span class="comment"># Aggressive: OS + version + scripts + traceroute</span>
+<span class="cmd">nmap</span> <span class="flag">-sC</span> <span class="arg">192.168.1.1</span>         <span class="comment"># Run default NSE scripts</span>
+<span class="cmd">nmap</span> <span class="flag">-sC</span> <span class="flag">-sV</span> <span class="arg">192.168.1.1</span>    <span class="comment"># Default scripts + version detection (common combo)</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">speed control (-T0 slowest → -T5 fastest)</span></div>
+        <pre><span class="cmd">nmap</span> <span class="flag">-T0</span> <span class="arg">192.168.1.1</span>    <span class="comment"># Paranoid (very slow, evasive, IDS bypass)</span>
+<span class="cmd">nmap</span> <span class="flag">-T3</span> <span class="arg">192.168.1.1</span>    <span class="comment"># Normal (default timing)</span>
+<span class="cmd">nmap</span> <span class="flag">-T4</span> <span class="arg">192.168.1.1</span>    <span class="comment"># Aggressive (fast, good for LAN)</span>
+<span class="cmd">nmap</span> <span class="flag">-T5</span> <span class="arg">192.168.1.1</span>    <span class="comment"># Insane (fastest — may miss results)</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">NSE scripts (nmap scripting engine)</span></div>
+        <pre><span class="cmd">nmap</span> <span class="flag">--script</span> <span class="arg">vuln</span> <span class="arg">192.168.1.1</span>           <span class="comment"># Scan for known CVE vulnerabilities</span>
+<span class="cmd">nmap</span> <span class="flag">--script</span> <span class="arg">http-title</span> <span class="arg">192.168.1.1</span>      <span class="comment"># Get web page titles</span>
+<span class="cmd">nmap</span> <span class="flag">--script</span> <span class="arg">banner</span> <span class="arg">192.168.1.1</span>          <span class="comment"># Grab service banners</span>
+<span class="cmd">nmap</span> <span class="flag">--script</span> <span class="arg">ftp-anon</span> <span class="arg">192.168.1.1</span>        <span class="comment"># Check for anonymous FTP login</span>
+<span class="cmd">nmap</span> <span class="flag">--script</span> <span class="arg">ssh-brute</span> <span class="arg">192.168.1.1</span>       <span class="comment"># SSH brute force (authorized use only)</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">saving output</span></div>
+        <pre><span class="cmd">nmap</span> <span class="flag">-oN</span> <span class="arg">output.txt</span> <span class="arg">192.168.1.1</span>     <span class="comment"># Save in normal text format</span>
+<span class="cmd">nmap</span> <span class="flag">-oX</span> <span class="arg">output.xml</span> <span class="arg">192.168.1.1</span>     <span class="comment"># Save in XML (for tools like Metasploit)</span>
+<span class="cmd">nmap</span> <span class="flag">-oG</span> <span class="arg">output.gnmap</span> <span class="arg">192.168.1.1</span>   <span class="comment"># Save in grepable format</span>
+<span class="cmd">nmap</span> <span class="flag">-oA</span> <span class="arg">output</span> <span class="arg">192.168.1.1</span>         <span class="comment"># Save in ALL three formats at once</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-label">full recon example</span></div>
+        <pre><span class="cmd">sudo nmap</span> <span class="flag">-A</span> <span class="flag">-T4</span> <span class="flag">-p-</span> <span class="flag">-oN</span> <span class="arg">full_scan.txt</span> <span class="arg">192.168.1.1</span>
+<span class="comment"># -A     = OS detection + version + default scripts + traceroute
+# -T4    = Aggressive timing (fast)
+# -p-    = Scan ALL 65535 ports
+# -oN    = Save results to full_scan.txt</span></pre>
+      </div>
+
+      <div class="danger-box">
+        <div class="danger-title">Legal Warning</div>
+        <p>Only use <code>nmap</code> on networks and systems you <strong>own</strong> or have <strong>explicit written permission</strong> to test. Unauthorized network scanning is illegal under computer crime laws in most countries (including the Computer Fraud and Abuse Act in the US). Always scan responsibly.</p>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ═══════════════ QUICK REFERENCE ═══════════════ -->
+<section class="quick-ref" id="quickref">
+  <div class="quick-ref-inner container" style="padding:0">
+    <h2>// QUICK REFERENCE</h2>
+    <div class="qr-grid">
+      <div class="qr-item"><span class="qr-cmd">sudo [cmd]</span><span class="qr-desc">Run one command as root</span></div>
+      <div class="qr-item"><span class="qr-cmd">su</span><span class="qr-desc">Switch to root user</span></div>
+      <div class="qr-item"><span class="qr-cmd">sudo su</span><span class="qr-desc">Become root with your password</span></div>
+      <div class="qr-item"><span class="qr-cmd">cat [file]</span><span class="qr-desc">Display file contents</span></div>
+      <div class="qr-item"><span class="qr-cmd">echo [text]</span><span class="qr-desc">Print text or variables</span></div>
+      <div class="qr-item"><span class="qr-cmd">history</span><span class="qr-desc">Show command history</span></div>
+      <div class="qr-item"><span class="qr-cmd">clear</span><span class="qr-desc">Clear terminal screen</span></div>
+      <div class="qr-item"><span class="qr-cmd">mkdir [dir]</span><span class="qr-desc">Create directories</span></div>
+      <div class="qr-item"><span class="qr-cmd">rmdir [dir]</span><span class="qr-desc">Remove empty directories</span></div>
+      <div class="qr-item"><span class="qr-cmd">touch [file]</span><span class="qr-desc">Create empty file</span></div>
+      <div class="qr-item"><span class="qr-cmd">rm -rf [path]</span><span class="qr-desc">Force delete files/folders</span></div>
+      <div class="qr-item"><span class="qr-cmd">exit</span><span class="qr-desc">Exit session/terminal</span></div>
+      <div class="qr-item"><span class="qr-cmd">cd [path]</span><span class="qr-desc">Navigate directories</span></div>
+      <div class="qr-item"><span class="qr-cmd">cd ..</span><span class="qr-desc">Go up one directory level</span></div>
+      <div class="qr-item"><span class="qr-cmd">ls</span><span class="qr-desc">List directory contents</span></div>
+      <div class="qr-item"><span class="qr-cmd">pwd</span><span class="qr-desc">Show current path</span></div>
+      <div class="qr-item"><span class="qr-cmd">ls -la</span><span class="qr-desc">Detailed + hidden file listing</span></div>
+      <div class="qr-item danger"><span class="qr-cmd">rm -rf /*</span><span class="qr-desc">🚨 DESTROYS ENTIRE SYSTEM</span></div>
+      <div class="qr-item"><span class="qr-cmd">whoami</span><span class="qr-desc">Show current username</span></div>
+      <div class="qr-item"><span class="qr-cmd">useradd</span><span class="qr-desc">Low-level user creation</span></div>
+      <div class="qr-item"><span class="qr-cmd">adduser</span><span class="qr-desc">Interactive user creation</span></div>
+      <div class="qr-item"><span class="qr-cmd">passwd [user]</span><span class="qr-desc">Change user password</span></div>
+      <div class="qr-item"><span class="qr-cmd">userdel -r</span><span class="qr-desc">Delete user + home dir</span></div>
+      <div class="qr-item"><span class="qr-cmd">usermod -aG sudo</span><span class="qr-desc">Grant admin privileges</span></div>
+      <div class="qr-item"><span class="qr-cmd">systemctl start</span><span class="qr-desc">Start a service</span></div>
+      <div class="qr-item"><span class="qr-cmd">systemctl enable</span><span class="qr-desc">Auto-start service at boot</span></div>
+      <div class="qr-item"><span class="qr-cmd">systemctl status</span><span class="qr-desc">Check service status</span></div>
+      <div class="qr-item"><span class="qr-cmd">nmap -A -T4</span><span class="qr-desc">Full aggressive network scan</span></div>
+      <div class="qr-item"><span class="qr-cmd">nmap -sV</span><span class="qr-desc">Service version detection</span></div>
+      <div class="qr-item"><span class="qr-cmd">nmap --script vuln</span><span class="qr-desc">Vulnerability scanning</span></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>PARROT OS</span> · Command Reference Guide · Security Edition · 2025
+</footer>
+
+<script>
+  // Scroll progress bar
+  window.addEventListener('scroll', () => {
+    const total = document.body.scrollHeight - window.innerHeight;
+    const pct = (window.scrollY / total) * 100;
+    document.getElementById('scrollBar').style.width = pct + '%';
+    const btn = document.getElementById('backTop');
+    btn.classList.toggle('visible', window.scrollY > 400);
+  });
+
+  // Stagger card animations
+  const cards = document.querySelectorAll('.cmd-card');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        e.target.style.animationDelay = '0s';
+        e.target.style.opacity = '1';
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  cards.forEach(c => { c.style.opacity = '0'; obs.observe(c); });
+</script>
+</body>
+</html>
