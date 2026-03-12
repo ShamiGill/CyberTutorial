@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+
+<title>Cyber Security Tutorials</title>
+<meta charset="UTF-8">
+
+<meta http-equiv="Content-Security-Policy"
+content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self';">
+
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
+
+<style>
+
+body{
+font-family: Arial;
+background:#0f172a;
+color:white;
+padding:40px;
+}
+
+h1{
+color:#22c55e;
+}
+
+ul{
+list-style:none;
+padding:0;
+}
+
+li{
+margin:15px 0;
+font-size:20px;
+}
+
+a{
+color:#38bdf8;
+text-decoration:none;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Cyber Security Tutorials</h1>
+
+<p>Select a category:</p>
+
+<ul>
+
+<li><a href="parrot-os/index.html">Parrot OS</a></li>
+
+<li><a href="networking/index.html">Networking Tutorials</a></li>
+
+<li><a href="web-security/index.html">Web Security Tutorials</a></li>
+
+</ul>
+
+<script>
+
+document.addEventListener("contextmenu", event => event.preventDefault());
+
+document.onkeydown = function(e){
+
+if(e.keyCode==123){return false;}
+
+if(e.ctrlKey && e.shiftKey && e.keyCode==73){return false;}
+
+if(e.ctrlKey && e.shiftKey && e.keyCode==74){return false;}
+
+if(e.ctrlKey && e.keyCode==85){return false;}
+
+};
+
+</script>
+
+</body>
+</html>

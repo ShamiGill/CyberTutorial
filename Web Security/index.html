@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+
+<title>Web Security Tutorials</title>
+<meta charset="UTF-8">
+
+<meta http-equiv="Content-Security-Policy"
+content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self';">
+
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="X-Frame-Options" content="DENY">
+
+<style>
+
+body{
+font-family: Arial;
+background:#0f172a;
+color:white;
+padding:40px;
+}
+
+h1{
+color:#ef4444;
+}
+
+li{
+margin:12px 0;
+font-size:18px;
+}
+
+a{
+color:#38bdf8;
+text-decoration:none;
+}
+
+.back{
+margin-top:30px;
+display:inline-block;
+color:#facc15;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Web Security Tutorials</h1>
+
+<ul>
+
+<li><a href="sql-injection.html">SQL Injection Guide</a></li>
+
+<li><a href="xss-guide.html">Cross Site Scripting (XSS)</a></li>
+
+<li><a href="csrf-attack.html">CSRF Attack</a></li>
+
+<li><a href="authentication-bypass.html">Authentication Bypass</a></li>
+
+</ul>
+
+<a class="back" href="../index.html">⬅ Back to Categories</a>
+
+<script>
+
+document.addEventListener("contextmenu", event => event.preventDefault());
+
+</script>
+
+</body>
+</html>

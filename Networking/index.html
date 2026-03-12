@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+
+<title>Networking Tutorials</title>
+<meta charset="UTF-8">
+
+<meta http-equiv="Content-Security-Policy"
+content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self';">
+
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
+
+<style>
+
+body{
+font-family: Arial;
+background:#0f172a;
+color:white;
+padding:40px;
+}
+
+h1{
+color:#38bdf8;
+}
+
+li{
+margin:12px 0;
+font-size:18px;
+}
+
+a{
+color:#22c55e;
+text-decoration:none;
+}
+
+.back{
+margin-top:30px;
+display:inline-block;
+color:#facc15;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Networking Cybersecurity Tutorials</h1>
+
+<p>Select a networking tutorial:</p>
+
+<ul>
+
+<li><a href="tcp-ip-basics.html">TCP/IP Fundamentals</a></li>
+
+<li><a href="port-scanning.html">Port Scanning Explained</a></li>
+
+<li><a href="nmap-guide.html">Nmap Network Scanning Guide</a></li>
+
+<li><a href="wireshark-basics.html">Wireshark Packet Analysis</a></li>
+
+</ul>
+
+<a class="back" href="../index.html">⬅ Back to Categories</a>
+
+<script>
+
+document.addEventListener("contextmenu", event => event.preventDefault());
+
+document.onkeydown = function(e){
+
+if(e.keyCode==123){return false;}
+
+if(e.ctrlKey && e.shiftKey && e.keyCode==73){return false;}
+
+if(e.ctrlKey && e.shiftKey && e.keyCode==74){return false;}
+
+if(e.ctrlKey && e.keyCode==85){return false;}
+
+};
+
+</script>
+
+</body>
+</html>
